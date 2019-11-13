@@ -1,0 +1,62 @@
+﻿<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="css/reset.css" />
+		<link rel="stylesheet" href="css/login.css?v=a338f095a6" />
+		<script src="js/jquery-1.9.1.min.js"></script>
+		<script src="js/postUrl.js?v=8de06d9e3a"></script>
+		<script src="js/common.js?v=aa38fd15c8"></script>
+		<script src="layui/layui.all.js"></script>
+		<script src="js/login.js?v=b9172687a1"></script>
+	</head>
+
+	<body>
+		<div class="login-box">
+			<div class="login-inner-box">
+				<div class="login-content-box">
+					<div class="illustration-box"></div>
+					<div class="login-opera-box">
+						<div class="title">排污用电监测系统</div>
+						<div class="login-list-box">
+							<div class="login-list">
+								<div class="icon icon-account"></div>
+								<div class="login-input-box">
+									<input type="text" value="" name="" id="account" autocomplete="off" placeholder="请输入用户名" oninput="bindLoginBtn();" />
+								</div>
+							</div>
+							<div class="login-list">
+								<div class="icon icon-password"></div>
+								<div class="login-input-box">
+									<input type="password" value="" name="" id="password" autocomplete="off" placeholder="请输入登录密码" oninput="bindLoginBtn();" />
+								</div>
+							</div>
+							<div class="login-list">
+								<div class="icon icon-token"></div>
+								<div class="login-input-box login-inputCode-box f_l">
+									<input type="text" value="" name="" id="inputCode" placeholder="请输入验证码" oninput="bindLoginBtn();" />
+								</div>
+								<div class="login-inputCode-text-box f_r" id="checkCode" onclick="createCode()"></div>
+							</div>
+						</div>
+						<div class="login-btn login-disabled-btn" id="login_btn">登录</div>
+					</div>
+				</div>
+			</div>
+			<div class="copyright">copyright &copy; 河南绿博仕智能环保科技有限公司</div>
+		</div>
+	</body>
+	<script>
+		createCode();
+	</script>
+
+</html>

@@ -1,0 +1,147 @@
+﻿<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../css/common.css?v=c17b04b905" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.qrcode.js"></script>
+		<script src="../js/utf.js"></script>
+		<script src="../js/postUrl.js?v=8de06d9e3a"></script>
+		<script src="../js/common.js?v=aa38fd15c8"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="kjy-title-box">
+				<div class="kjy-title-text">
+					基站管理
+				</div>
+			</div>
+			<div class="search-box">
+				<div class="search-inner-box">
+					<div class="search-text">
+						<div class="search">
+							<div class="search-name">新联MN码：</div>
+							<div class="search-value">
+								<input type="text" name="" value="" id="xlMN" placeholder="输入新联MN码" />
+							</div>
+						</div>
+						<div class="search">
+							<div class="search-name">安科瑞MN码：</div>
+							<div class="search-value">
+								<input type="text" name="" value="" id="acrelMN" placeholder="输入安科瑞MN码" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn icon icon-search" onclick="sreach();">查询</div>
+					<div class="btn icon icon-add" onclick="showPart('',0);">新建基站</div>
+					<div class="btn icon icon-reload" onclick="reloadPage();">刷新</div>
+				</div>
+			</div>
+			<div class="no-data-box" v-if="dataList.length == 0">
+				<div class="no-data-inner-box">
+					<div class="icon icon-no-data"></div>
+					<div class="no-data-text">暂时没有基站记录哦</div>
+				</div>
+			</div>
+			<div class="kjy-table" v-else>
+				<table>
+					<thead>
+						<tr>
+							<th>序号</th>
+							<th>新联MN码</th>
+							<th>安科瑞MN码</th>
+							<th>创建时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody id="tbody">
+						<tr v-for="(t,i) in dataList">
+							<td>{{((pageNo-1)*20)+(i+1)}}</td>
+							<td>{{t.xlMN}}</td>
+							<td>{{t.acrelMN}}</td>
+							<td>{{t.createTime}}</td>
+							<td>
+								<div class="btn icon icon-del" v-on:click="del(t.id)">删除</div>
+								<div class="btn icon icon-monitor" v-on:click="showPart(t,1)">设备管理</div>
+								<div class="btn icon icon-details" v-on:click="showPart(t,2)">数据详情</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="page-box"></div>
+		</div>
+	</body>
+	<script>
+		loadVue(".v-dom", param);
+		loadPage(0);
+		//新建或编辑
+		function showPart(obj, flag) {
+			if(flag == 0) {
+				openMask("../part/stationRelationShip", "新建基站", ["320px", "162px"], function(layerDom, layerIframe) {
+					judeEdit(0, layerDom);
+				})
+			} else if(flag == 1 || flag == 2) {
+				setData.parentData = obj;
+				var title = "（新联MN码:" + obj.xlMN + "，安科瑞MN码：" + obj.acrelMN + ")";
+				var area = ["100%", "100%"]
+				if(flag == 1) {
+					openMask("monitorRelationShip", "设备管理" + title, area)
+				} else {
+					openMask("stationInfo", "数据详情" + title, area);
+				}
+			}
+		}
+
+		//删除数据
+		function del(id) {
+			delOneData(id, "确定删除该基站吗？", 1, function(param) {
+				request('POST', '/company/stationRelationShip/delete.do', param, true, function(res) {
+					loadData();
+					layer.closeAll('dialog');
+				}, function(res) {
+					layer.msg("删除失败");
+				})
+			})
+		}
+
+		//		加载数据
+		function loadData() {
+			var param = {
+				pageNo: pageNo,
+				xlMN: $("#xlMN").val(),
+				acrelMN: $("#acrelMN").val()
+			};
+			request('POST', '/company/stationRelationShip/queryList.do', param, true, function(res) {
+				var dataList = res.data.dataList;
+				for(var i = 0; i < dataList.length; i++) {
+					dataList[i].isActive = false;
+				}
+				setData.dataList = dataList;
+				setData.allisActive = false;
+			}, function(res) {
+				layer.msg("基站记录加载失败");
+			})
+		}
+		loadData();
+	</script>
+
+</html>

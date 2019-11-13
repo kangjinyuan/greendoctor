@@ -1,0 +1,116 @@
+﻿<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../css/common.css?v=c17b04b905" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/postUrl.js?v=8de06d9e3a"></script>
+		<script src="../js/common.js?v=aa38fd15c8"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="search-box">
+				<div class="search-inner-box">
+					<div class="search-text">
+						<div class="search">
+							<div class="search-name">设备编码：</div>
+							<div class="search-value">
+								<input type="text" name="" value="" id="subDevCode" placeholder="输入设备编码" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn icon icon-search" onclick="sreach();">查询</div>
+					<div class="btn icon icon-reload" onclick="reloadPage();">刷新</div>
+				</div>
+			</div>
+			<div class="no-data-box" v-if="dataList.length == 0">
+				<div class="no-data-inner-box">
+					<div class="icon icon-no-data"></div>
+					<div class="no-data-text">暂时没有数据详情哦</div>
+				</div>
+			</div>
+			<div class="kjy-table" v-else>
+				<table>
+					<thead>
+						<tr>
+							<th>序号</th>
+							<th>设备编码</th>
+							<th>Ia</th>
+							<th>Ib</th>
+							<th>Ic</th>
+							<th>-Pt</th>
+							<th>Ept</th>
+							<th>Ua</th>
+							<th>Ub</th>
+							<th>Uc</th>
+							<th>更新时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody id="tbody">
+						<tr v-for="(t,i) in dataList">
+							<td>{{((pageNo-1)*20)+(i+1)}}</td>
+							<td>{{t.subDevCode}}</td>
+							<td>{{t.data.ia}}</td>
+							<td>{{t.data.ib}}</td>
+							<td>{{t.data.ic}}</td>
+							<td>{{t.data.pt}}</td>
+							<td>{{t.data.ept}}</td>
+							<td>{{t.data.ua}}</td>
+							<td>{{t.data.ub}}</td>
+							<td>{{t.data.uc}}</td>
+							<td>{{t.updateTime}}</td>
+							<td>
+								<div class="btn icon icon-details" v-on:click="showOriginal(t);">历史数据</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</body>
+	<script>
+		loadVue(".v-dom", param);
+		var parentData = parent.setData.parentData;
+
+		function showOriginal(obj) {
+			setData.parentData = obj;
+			openMask("original", "历史数据" + "（设备编码:" + obj.subDevCode + ")", ["100%", "100%"]);
+		}
+
+		//		加载数据
+		function loadData() {
+			var param = {
+				pageNo: pageNo,
+				pageSize: "30",
+				mn: parentData.acrelMN,
+				subDevCode: $("#subDevCode").val()
+			};
+			request('POST', '/data/monitor/queryList.do', param, true, function(res) {
+				setData.dataList = res.data.dataList;
+			}, function(res) {
+				layer.msg("数据详情加载失败");
+			})
+		}
+		loadData();
+	</script>
+
+</html>

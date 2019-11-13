@@ -1,0 +1,98 @@
+﻿<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../css/common.css?v=c17b04b905" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/postUrl.js?v=8de06d9e3a"></script>
+		<script src="../js/common.js?v=aa38fd15c8"></script>
+	</head>
+
+	<body>
+		<div class="main-mask">
+			<div class="con">
+				<div class="mask-list">
+					<div class="mask-list-name"><span>*</span><span class="text">运营公司</span>：</div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="company" value="" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">联系人</span>：</div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="contacts" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">联系电话</span>：</div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="contactNumber" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span>*</span><span class="text">账号</span>：</div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="account" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span>*</span><span class="text">密码</span>：</div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="password" class="required" />
+						<div class="mask-list-prompt">4-16位数字或字母，区分大小写</div>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span>*</span><span class="text">确认密码</span>：</div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="checkPassword" class="required" />
+						<div class="mask-list-prompt">4-16位数字或字母，区分大小写</div>
+					</div>
+				</div>
+			</div>
+			<div class="mask-btn-box">
+				<div class="btn-box">
+					<div class="btn icon icon-save" onclick="edit();" id="creatsave">确定</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		//编辑
+		function edit() {
+			var checkI = checkInput();
+			if(checkI == true) {
+				if($("#password").val() != $("#checkPassword").val()) {
+					layer.msg("密码不一致，请核对");
+					return false;
+				}
+				var param = {
+					id: $(".main-mask").attr("data-id"),
+					company: $("#company").val(),
+					contacts: $("#Contacts").val(),
+					contactNumber: $("#contactNumber").val(),
+					account: $("#account").val(),
+					password: $("#password").val()
+				};
+				request('POST', '/property/administrator/saveOrUpdate.do', param, true, function(res) {
+					parent.layer.close(parent.ifameIndex);
+					parent.layer.msg("操作成功");
+				}, function(res) {
+					layer.msg('操作失败，请检查网络或重试');
+				})
+			}
+		}
+	</script>
+
+</html>
