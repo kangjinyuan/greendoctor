@@ -9,6 +9,18 @@
 .icon-select-user{background-image: url(../img/icon/icon-select-user.png);}
 .icon-menu-retract{background-image: url(../img/icon/icon-menu-retract.png);}
 .icon-menu-open{background-image: url(../img/icon/icon-menu-open.png);}
+.icon-register{background-image: url(../img/icon/icon-register.png);}
+.icon-select-register{background-image: url(../img/icon/icon-select-register.png);}
+.icon-see-data{background-image: url(../img/icon/icon-see-data.png);}
+.icon-select-see-data{background-image: url(../img/icon/icon-select-see-data.png);}
+.icon-data-monitor{background-image: url(../img/icon/icon-data-monitor.png);}
+.icon-select-data-monitor{background-image: url(../img/icon/icon-select-data-monitor.png);}
+.icon-pollute-device-monitor{background-image: url(../img/icon/icon-pollute-device-monitor.png);}
+.icon-select-pollute-device-monitor{background-image: url(../img/icon/icon-select-pollute-device-monitor.png);}
+.icon-pollute-govern{background-image: url(../img/icon/icon-pollute-govern.png);}
+.icon-select-pollute-govern{background-image: url(../img/icon/icon-select-pollute-govern.png);}
+.icon-stagger-produce{background-image: url(../img/icon/icon-stagger-produce.png);}
+.icon-select-stagger-produce{background-image: url(../img/icon/icon-select-stagger-produce.png);}
 
 /*左侧和右侧*/
 .kjy-left-box,.kjy-right-box{height: 100%;font-family: 微软雅黑;position: relative;}
@@ -64,7 +76,7 @@
 .layui-tab-title .layui-this .layui-tab-close{color: #3c766a;}
 .layui-tab-title li .layui-tab-close:hover{background: none;color: #3c766a;}
 .layui-tab-title .layui-this .layui-tab-close:hover{color: #3c766a;}
-.layui-tab-content{width: 100%;padding:0px;overflow: hidden;position: relative;}
+.layui-tab-content{width: auto;padding: 0px;overflow: hidden;position: relative;}
 .layui-tab-content iframe{height: 100%;background-color: #f5f6f8;}
 
 /*版权信息*/

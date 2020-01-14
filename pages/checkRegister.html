@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../layui/css/layui.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.qrcode.js"></script>
+		<script src="../js/utf.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="search-box">
+				<div class="search-row-box">
+					<div class="search-list">
+						<div class="search-name">运营公司：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="company" placeholder="运营公司" />
+						</div>
+					</div>
+					<div class="search-list">
+						<div class="search-name">审核状态：</div>
+						<div class="search-value">
+							<select name="" id="state">
+								<option value="">审核状态</option>
+								<option value="1">已审核</option>
+								<option value="0">未审核</option>
+							</select>
+						</div>
+					</div>
+					<div class="search-list">
+						<div class="search-name">开始日期：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="startTime" placeholder="yyyy-mm-dd" />
+						</div>
+					</div>
+					<div class="search-list">
+						<div class="search-name">结束日期：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="endTime" placeholder="yyyy-mm-dd" />
+						</div>
+					</div>
+					<div class="search-btn-box">
+						<div class="btn" onclick="search();">查询</div>
+						<div class="btn" onclick="reloadPage();">重置</div>
+					</div>
+				</div>
+			</div>
+			<div class="kjy-data-box">
+				<div class="no-data-box" v-if="dataList.length == 0">
+					<div class="no-data-inner-box">
+						<div class="icon icon-no-data"></div>
+						<div class="no-data-text">暂时没有审核记录哦</div>
+					</div>
+				</div>
+				<div class="kjy-data-inner-box" v-else>
+					<div class="kjy-table">
+						<table>
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>运营公司</th>
+									<th>联系人</th>
+									<th>联系电话</th>
+									<th>用户名称</th>
+									<th>企业材料</th>
+									<th>注册时间</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+
+							<tbody id="tbody">
+								<tr v-for="(t,i) in dataList">
+									<td>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+									<td>{{t.company}}</td>
+									<td>{{t.charger}}</td>
+									<td>{{t.telephone?t.telephone:'暂无联系电话'}}</td>
+									<td>{{t.accountName}}</td>
+									<td>{{t.enterpriseFile}}</td>
+									<td>{{t.createTime}}</td>
+									<td>
+										<p v-if="state == '0'">已通过</p>
+										<ul class="opera-box" v-else>
+											<li v-on:click="check(t);">通过</li>
+											<li v-on:click="check(t);">驳回</li>
+										</ul>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="page-box"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		loadVue(".v-dom", param);
+		$(function() {
+			setTime('#startTime', "date", "yyyy-MM-dd");
+			setTime('#endTime', "date", "yyyy-MM-dd");
+		})
+		//新建或编辑
+		function check() {
+			layer.msg("此功能未开放");
+		}
+
+		//		加载数据
+		function loadData() {
+			//			var param = {
+			//				page: page,
+			//				company: $("#company").val()
+			//			};
+			//			request('POST', '/account/administrator/queryList.do', param, true, function(res) {
+			//				var dataList = res.data;
+			var dataList = [{
+				id: "1",
+				company: "绿博士",
+				charger: "康津源",
+				telephone: "",
+				accountName: "超级管理员",
+				enterpriseFile: "绿博仕企业材料",
+				state: "0",
+				createTime: "2019-12-13 14:30:25"
+			}, {
+				id: "2",
+				company: "绿博士",
+				charger: "康津源",
+				telephone: "",
+				accountName: "超级管理员",
+				enterpriseFile: "绿博仕企业材料",
+				state: "1",
+				createTime: "2019-12-13 14:30:25"
+			}]
+			setData.dataList = dataList;
+			setData.totalPage = 1;
+			setData.pageSize = 1;
+			setData.pageNo = 1;
+			setData.count = 1;
+			resetPage();
+			loadPage();
+			//			}, function(res) {
+			//				layer.msg("审核记录加载失败");
+			//			})
+		}
+		loadData();
+	</script>
+
+</html>

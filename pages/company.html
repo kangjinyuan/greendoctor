@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.qrcode.js"></script>
+		<script src="../js/utf.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="search-box">
+				<div class="search-row-box">
+					<div class="search-list">
+						<div class="search-name">企业名称：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="name" placeholder="企业名称" />
+						</div>
+					</div>
+					<div class="search-list">
+						<div class="search-name">所属行业：</div>
+						<div class="search-value">
+							<select name="" id="industryCategory" v-on:change="search();">
+								<option value="">所属行业</option>
+								<option value="其他">其他</option>
+								<option v-bind:value="t.name" v-for="t in industry">{{t.name}}</option>
+							</select>
+						</div>
+					</div>
+					<div class="search-btn-box">
+						<div class="btn" onclick="search();">查询</div>
+						<div class="btn" onclick="reloadPage();">重置</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="company();">新建</div>
+				</div>
+			</div>
+			<div class="kjy-data-box">
+				<div class="no-data-box" v-if="dataList.length == 0">
+					<div class="no-data-inner-box">
+						<div class="icon icon-no-data"></div>
+						<div class="no-data-text">暂时没有企业记录哦</div>
+					</div>
+				</div>
+				<div class="kjy-data-inner-box" v-else>
+					<div class="kjy-table">
+						<table>
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>企业名称</th>
+									<th>所属行业</th>
+									<th>联系人</th>
+									<th>创建时间</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+
+							<tbody id="tbody">
+								<tr v-for="(t,i) in dataList">
+									<td>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+									<td v-bind:title="t.name">{{t.name}}</td>
+									<td>{{t.industryCategory}}</td>
+									<td>{{t.contactPerson}}</td>
+									<td>{{t.createTime}}</td>
+									<td>
+										<ul class="opera-box">
+											<li v-on:click="company(t);">编辑</li>
+											<li v-on:click="del(t);">删除</li>
+											<li v-on:click="companyGateway(t);">数采仪</li>
+											<li v-on:click="companyFacility(t);">设施</li>
+											<li v-on:click="powerSupply(t);">供电线路</li>
+										</ul>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="page-box"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.industry = [];
+		loadVue(".v-dom", param);
+		//新建或编辑
+		function company(obj) {
+			var industry = setData.industry;
+			if(obj) {
+				var title = "编辑企业";
+			} else {
+				var title = "新建企业";
+			}
+			openMask("/part/company", title, ["670px", "500px"], function(layerDom, layerIframe) {
+				layerIframe.setData.contentList = industry;
+				if(obj) {
+					layerIframe.setData.parentData = obj;
+					layerIframe.nextTick(function() {
+						layerDom.find("#industryCategory").val(obj.industryCategory);
+					})
+					layerDom.find("#name").val(obj.name);
+					layerDom.find("#legalPerson").val(obj.legalPerson);
+					layerDom.find("#creditCode").val(obj.creditCode);
+					layerDom.find("#registeredCapital").val(obj.registeredCapital);
+					layerDom.find("#contactPerson").val(obj.contactPerson);
+					layerDom.find("#contactTelephone").val(obj.contactTelephone);
+					layerDom.find("#province").val(obj.province).change();
+					layerDom.find("#city").val(obj.city).change();
+					layerDom.find("#county").val(obj.county);
+					layerDom.find("#address").val(obj.address);
+					layerDom.find("#longitude").val(obj.longitude);
+					layerDom.find("#latitude").val(obj.latitude);
+					layerDom.find("#businessScope").val(obj.businessScope);
+					layerDom.find("#products").val(obj.products);
+					layerDom.find("#produceTechnology").val(obj.produceTechnology);
+					layerDom.find("#annualOutputValue").val(obj.annualOutputValue);
+					layerDom.find("#annualOutputUnit").val(obj.annualOutputUnit);
+					layerDom.find("#annualValue").val(obj.annualValue);
+					layerDom.find("#annualElectricityConsumption").val(obj.annualElectricityConsumption);
+					layerDom.find("#polluteGrantCode").val(obj.polluteGrantCode);
+					layerDom.find("#outNum").val(obj.outNum);
+					layerDom.find("#annualExhaustGasOutput").val(obj.annualExhaustGasOutput);
+					layerDom.find("#constructionOrganisation").val(obj.constructionOrganisation);
+					layerDom.find("#constructionTime").val(resetTime(obj.constructionTime, 3));
+					layerDom.find("#principalPollution").val(obj.principalPollution);
+					layerDom.find("#fixTechnology").val(obj.fixTechnology);
+					layerDom.find("#mainFacility").val(obj.mainFacility);
+				}
+			});
+		}
+
+		function companyGateway(obj) {
+			var title = obj.name + "（数采仪）";
+			openMask("/pages/companyGateway", title, ["100%", "100%"], function(layerDom, layerIframe) {
+				layerIframe.setData.parentData = obj;
+				layerIframe.loadData();
+			});
+		}
+
+		function companyFacility(obj) {
+			var title = obj.name + "（设施）";
+			openMask("/pages/companyFacility", title, ["100%", "100%"], function(layerDom, layerIframe) {
+				layerIframe.setData.parentData = obj;
+				layerIframe.loadData();
+			});
+		}
+
+		function powerSupply(obj) {
+			var title = obj.name + "（供电线路）";
+			openMask("/pages/powerSupply", title, ["100%", "100%"], function(layerDom, layerIframe) {
+				layerIframe.setData.parentData = obj;
+				layerIframe.loadData();
+			});
+		}
+
+		//删除数据
+		function del(obj) {
+			openConfirm("确定删除该企业吗？", function() {
+				var param = {
+					id: obj.id
+				}
+				request('POST', '/company/company/delete.do', param, true, function(res) {
+					loadData();
+					layer.closeAll('dialog');
+				}, function(res) {
+					layer.msg("删除失败");
+				})
+			})
+		}
+
+		//		加载数据
+		function loadData() {
+			var param = {
+				pageNo: pageNo,
+				name: $("#name").val(),
+				industryCategory: $("#industryCategory").val()
+			};
+			request('POST', '/company/company/queryList.do', param, true, function(res) {
+				var dataList = res.data.dataList;
+				for(var i = 0; i < dataList.length; i++) {
+					var annualOutput = dataList[i].annualOutput.split("-");
+					dataList[i].annualOutputValue = annualOutput[0];
+					dataList[i].annualOutputUnit = annualOutput[1];
+				}
+				setData.dataList = dataList;
+				loadPage();
+			}, function(res) {
+				layer.msg("企业记录加载失败");
+			})
+		}
+
+		function loadIndustry() {
+			var param = {
+				pageSize: "1000"
+			}
+			request('POST', '/company/industryCategory/queryList.do', param, true, function(res) {
+				setData.industry = res.data.dataList;
+			}, function(res) {
+				layer.msg("行业记录加载失败");
+			})
+		}
+		loadData();
+		loadIndustry();
+	</script>
+
+</html>

@@ -37,7 +37,7 @@ var setData;
 //初始化vue
 var param = {
 	dataList: [],
-	allisActive: false,
+	allIsActive: false,
 	totalPage: 0,
 	pageSize: 0,
 	pageNo: 0,
@@ -300,14 +300,14 @@ function setTotalFee(dataList) {
 
 //全选
 function selectAllData() {
-	if(setData.allisActive == true) {
-		setData.allisActive = false;
+	if(setData.allIsActive == true) {
+		setData.allIsActive = false;
 		for(var i = 0; i < setData.dataList.length; i++) {
 			setData.dataList[i].isActive = false;
 		}
 		dataList = [];
 	} else {
-		setData.allisActive = true;
+		setData.allIsActive = true;
 		for(var i = 0; i < setData.dataList.length; i++) {
 			if(setData.dataList[i].isActive == false) {
 				setData.dataList[i].isActive = true;
@@ -331,9 +331,9 @@ function selectOneData(obj) {
 	}
 	for(var i = 0; i < setData.dataList.length; i++) {
 		if(setData.dataList[i].isActive == true) {
-			setData.allisActive = true;
+			setData.allIsActive = true;
 		} else {
-			setData.allisActive = false;
+			setData.allIsActive = false;
 			break;
 		}
 

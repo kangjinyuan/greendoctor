@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.qrcode.js"></script>
+		<script src="../js/utf.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="search-box">
+				<div class="search-row-box">
+					<div class="search-list">
+						<div class="search-name">监测点名称：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="name" placeholder="监测点名称" />
+						</div>
+					</div>
+					<div class="search-list">
+						<div class="search-name">所属企业：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="companyName" placeholder="所属企业" />
+						</div>
+					</div>
+					<div class="search-btn-box">
+						<div class="btn" onclick="search();">查询</div>
+						<div class="btn" onclick="reloadPage();">重置</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="monitorPoint();">新建</div>
+					<div class="btn" onclick="del();">删除</div>
+				</div>
+			</div>
+			<div class="kjy-data-box">
+				<div class="no-data-box" v-if="dataList.length == 0">
+					<div class="no-data-inner-box">
+						<div class="icon icon-no-data"></div>
+						<div class="no-data-text">暂时没有监测点记录哦</div>
+					</div>
+				</div>
+				<div class="kjy-data-inner-box" v-else>
+					<div class="kjy-table">
+						<table>
+							<thead>
+								<tr>
+									<th class="padding-left-52">
+										<div v-bind:class="['icon','icon-check-box',allIsActive?'icon-checked':'']" v-on:click="selectAllData()"></div>序号</th>
+									<th>监测点名称</th>
+									<th>监测点编码</th>
+									<th>所属企业</th>
+									<th>所属数采仪</th>
+									<th>所属设施</th>
+									<th>创建时间</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+
+							<tbody id="tbody">
+								<tr v-for="(t,i) in dataList">
+									<td class="padding-left-52">
+										<div v-bind:class="['icon','icon-check-box',t.isActive?'icon-checked':'']" v-on:click="selectOneData(t)"></div>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+									<td>{{t.name}}</td>
+									<td>{{t.serialNumber}}</td>
+									<td v-bind:title="t.companyName">{{t.companyName}}</td>
+									<td v-bind:title="t.gatewayStationName">{{t.gatewayStationName}}</td>
+									<td v-bind:title="t.facilityName?t.facilityName:'暂无所属设施'">{{t.facilityName?t.facilityName:'暂无所属设施'}}</td>
+									<td>{{t.createTime}}</td>
+									<td>
+										<ul class="opera-box">
+											<li v-on:click="monitorPoint(t)">编辑</li>
+										</ul>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="page-box"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		loadVue(".v-dom", param);
+
+		//新建或编辑
+		function monitorPoint(obj) {
+			if(obj) {
+				var title = "编辑监控点";
+			} else {
+				var title = "新建监控点";
+			}
+			openMask("/part/monitor", title, ["400px", "384px"], function(layerDom, layerIframe) {
+				layerIframe.setData.showSelectCompanyBtn = true;
+				layerIframe.setData.showSelectGatewayBtn = true;
+				if(obj) {
+					layerIframe.setData.parentData = obj;
+					layerDom.find("#name").val(obj.name);
+					layerDom.find("#companyId").val(obj.companyId);
+					layerDom.find("#companyName").val(obj.companyName);
+					layerDom.find("#gatewayStationName").val(obj.gatewayStationName);
+					layerDom.find("#gatewayStationId").val(obj.gatewayStationId);
+					var monitorType = obj.monitorType;
+					layerIframe.setData.monitorType = monitorType;
+					layerDom.find("#monitorType").val(monitorType).attr("disabled", "disabled");
+					layerIframe.nextTick(function() {
+						if(monitorType == "0") {
+							layerDom.find("#lineName").val(obj.lineName);
+							layerDom.find("#measureStyle").val(obj.measureStyle);
+							layerDom.find("#voltageDegree").val(obj.voltageDegree);
+							layerDom.find("#location").val(obj.location);
+						} else if(monitorType == "1") {
+							layerDom.find("#facilityName").val(obj.facilityName);
+							layerDom.find("#facilityId").val(obj.facilityId);
+							layerDom.find("#monitorPower").val(obj.monitorPower);
+							layerDom.find("#thresholdValue").val(obj.thresholdValue);
+							layerDom.find("#timeout").val(obj.timeout);
+						}
+					})
+				}
+			})
+		}
+
+		//删除数据
+		function del(obj) {
+			if(idList.length == 0) {
+				layer.msg("请选择监控点");
+				return false;
+			}
+			openConfirm("确定删除所选监测点吗？", function() {
+				var param = {
+					idList: idList
+				}
+				request('POST', '/company/monitor/deleteList.do', param, true, function(res) {
+					loadData();
+					layer.closeAll('dialog');
+				}, function(res) {
+					layer.msg("删除失败");
+				})
+			})
+		}
+
+		//		加载数据
+		function loadData() {
+			var parentData = setData.parentData;
+			var param = {
+				pageNo: pageNo,
+				name: $("#name").val(),
+				companyName: $("#companyName").val()
+			};
+			request('POST', '/company/monitor/queryList.do', param, true, function(res) {
+				var dataList = res.data.dataList;
+				for(var i = 0; i < dataList.length; i++) {
+					dataList[i].isActive = false;
+				}
+				setData.dataList = dataList;
+				setData.allIsActive = false;
+				loadPage();
+			}, function(res) {
+				layer.msg("监测点记录加载失败");
+			})
+		}
+		loadData();
+	</script>
+
+</html>

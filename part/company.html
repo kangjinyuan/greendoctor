@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../layui/css/layui.css">
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/area.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+		<script src="../js/vue.min.js"></script>
+		<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=bf20afe40b35aaefe32a418f194dc797"></script>
+	</head>
+
+	<body>
+		<div class="mask-box v-dom" v-cloak>
+			<div class="mask-inner-box">
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">企业名称：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="name" value="" class="required width-450" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">所属行业：</span></div>
+					<div class="mask-list-value">
+						<select name="" id="industryCategory" class="required">
+							<option value="">所属行业</option>
+							<option value="其他">其他</option>
+							<option v-bind:value="t.name" v-for="t in contentList">{{t.name}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">法人代表：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="legalPerson" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">社会信用代码：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="creditCode" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">注册资金：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="registeredCapital" class="width-80 regular-num" />
+					</div>
+					<div class="mask-unit-box">万元</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">联系人：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="contactPerson" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">联系电话：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="contactTelephone" class="required regular-telephone" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">归属地：</span></div>
+					<div class="mask-list-value">
+						<select name="province" id="province" class="required width-147"></select>
+						<select name="city" id="city" class="required width-147"></select>
+						<select name="county" id="county" class="required width-147"></select>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">企业地址：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="address" class="required width-450" />
+					</div>
+				</div>
+				<!--<div class="masklist" style="height: 300px;" id="container"></div>-->
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">经度：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="longitude" disabled="disabled" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">纬度：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="latitude" disabled="disabled" class="required" />
+					</div>
+					<div class="btn-box">
+						<div class="btn-inner-box">
+							<div class="btn" onclick="getLngAndLat();">获取</div>
+						</div>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">经营范围：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="businessScope" placeholder="多个用“,”隔开" class="required width-450" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">主要产品：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="products" placeholder="多个用“,”隔开" class="required width-450" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">生产工艺：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="produceTechnology" placeholder="多个用“,”隔开" class="required width-450" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">年产值：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="annualValue" class="width-80 regular-num" />
+					</div>
+					<div class="mask-unit-box">万元</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">年用电量：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="annualElectricityConsumption" class="width-80 regular-num" />
+					</div>
+					<div class="mask-unit-box">万度</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">年产量：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="annualOutputValue" class="width-80 regular-num" />
+						<select name="" id="annualOutputUnit" class="width-80">
+							<option value="万吨">万吨</option>
+							<option value="台">台</option>
+							<option value="套">套</option>
+							<option value="立方米">立方米</option>
+						</select>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">排污许可证号：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="polluteGrantCode" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">排口数量：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="outNum" class="required width-80 regular-num" />
+					</div>
+					<div class="mask-unit-box">个</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">年废气排放量：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="annualExhaustGasOutput" class="width-80 regular-num" />
+					</div>
+					<div class="mask-unit-box">吨</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">施工单位：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="constructionOrganisation" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">施工时间：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="constructionTime" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">主要污染物：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="principalPollution" placeholder="多个用“,”隔开" class="required width-450" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">治理工艺：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="fixTechnology" placeholder="多个用“,”隔开" class="required width-450" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">主要设施：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="mainFacility" placeholder="多个用“,”隔开" class="required width-450" />
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		loadVue(".v-dom", param);
+		$(function() {
+			new PCAS("province", "city", "county");
+			setTime('#constructionTime', "date", "yyyy-MM-dd");
+		})
+
+		var map = new AMap.Map('container', {
+			zoom: 12,
+			center: [116.39, 39.9]
+		});
+
+		function getLngAndLat() {
+			if($("#address").val() == "") {
+				layer.msg('企业地址不能为空');
+				return false;
+			}
+			map.plugin(["AMap.Geocoder"], function() { //加载地理编码插件
+				MGeocoder = new AMap.Geocoder({
+					city: "",
+				});
+				MGeocoder.getLocation($("#address").val(), function(status, result) {
+					if(status === 'complete' && result.info === 'OK') {
+						$("#longitude").val(result.geocodes[0].location.lng); //获取经度
+						$("#latitude").val(result.geocodes[0].location.lat); //获取纬度
+					} else {
+						console.log("获取经纬度失败");
+					}
+				});
+
+			});
+		}
+
+		//编辑
+		function save() {
+			var checkI = checkInput();
+			if(checkI == true) {
+				var parentData = setData.parentData;
+				var annualOutputValue = $("#annualOutputValue").val() ? $("#annualOutputValue").val() : '0';
+				var annualOutputUnit = $("#annualOutputUnit").val();
+				var annualOutput = annualOutputValue + "-" + annualOutputUnit;
+				var param = {
+					name: $("#name").val(),
+					industryCategory: $("#industryCategory").val(),
+					legalPerson: $("#legalPerson").val(),
+					creditCode: $("#creditCode").val(),
+					registeredCapital: $("#registeredCapital").val(),
+					contactPerson: $("#contactPerson").val(),
+					contactTelephone: $("#contactTelephone").val(),
+					province: $("#province").val(),
+					city: $("#city").val(),
+					county: $("#county").val(),
+					address: $("#address").val(),
+					longitude: $("#longitude").val(),
+					latitude: $("#latitude").val(),
+					businessScope: $("#businessScope").val(),
+					products: $("#products").val(),
+					produceTechnology: $("#produceTechnology").val(),
+					annualOutput: annualOutput,
+					annualValue: $("#annualValue").val(),
+					annualElectricityConsumption: $("#annualElectricityConsumption").val(),
+					polluteGrantCode: $("#polluteGrantCode").val(),
+					outNum: $("#outNum").val(),
+					annualExhaustGasOutput: $("#annualExhaustGasOutput").val(),
+					constructionOrganisation: $("#constructionOrganisation").val(),
+					constructionTime: resetTime($("#constructionTime").val(), 0),
+					principalPollution: $("#principalPollution").val(),
+					fixTechnology: $("#fixTechnology").val(),
+					mainFacility: $("#mainFacility").val(),
+				};
+				if(parentData) {
+					param.id = parentData.id;
+				}
+				request('POST', '/company/company/saveOrUpdate.do', param, true, function(res) {
+					closeMask();
+					parent.layer.msg("操作成功");
+					parent.loadData();
+				}, function(res) {
+					if(res.code == "0004"){
+						layer.msg("该企业已存在");
+					}else{
+						layer.msg('操作失败，请检查网络或重试');
+					}
+				})
+			}
+		}
+	</script>
+
+</html>

@@ -6,17 +6,18 @@ function setnav() {
 		var navs = new Array();
 		$(".layui-nav-child li").on("click", "a", function() {
 			var id = $(this).attr("data-id");
-			var page = $(this).attr("data-page");
+			var path = $(this).attr("data-path");
 			if($.inArray(id, navs) == -1) {
-				if(page == "part/noOpen") {
+				if(path == "") {
 					layer.msg('此功能未开放');
 					return false;
 				}
 				navs.push(id);
 				//新增一个Tab项
+				path = host + "/greendoctor" + path + ".html?timestamp=" + timestamp;
 				element.tabAdd('kjy', {
 					title: $(this).text(),
-					content: "<iframe data-id='" + id + "' src='" + page + ".html?timestamp=" + timestamp + "' frameborder='0' marginheight='0' marginwidth='0' scrolling='yes' width='100%'></iframe>",
+					content: "<iframe data-id='" + id + "' src='" + path + "' frameborder='0' marginheight='0' marginwidth='0' scrolling='yes' width='100%'></iframe>",
 					id: id
 				})
 			}

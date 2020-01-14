@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon">
+		<link rel="stylesheet" href="../css/reset.css">
+		<link rel="stylesheet" href="../layui/css/layui.css">
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362">
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="mask-box v-dom" v-cloak>
+			<div class="mask-inner-box">
+				<div class="kjy-box kjy-flex-box">
+					<div class="search-box">
+						<div class="search-row-box">
+							<div class="search-list">
+								<div class="search-name">数采仪名称：</div>
+								<div class="search-value">
+									<input type="text" name="" value="" id="name" placeholder="数采仪名称">
+								</div>
+							</div>
+							<div class="search-btn-box">
+								<div class="btn" onclick="search();">查询</div>
+							</div>
+						</div>
+					</div>
+					<div class="kjy-data-box">
+						<div class="full-box" v-if="dataList.length == 0">
+							<div class="no-data-box">
+								<div class="no-data-inner-box">
+									<div class="icon icon-no-data"></div>
+									<div class="no-data-text">暂时没有数采仪记录哦</div>
+								</div>
+							</div>
+						</div>
+						<div class="kjy-data-inner-box" v-else>
+							<div class="kjy-table">
+								<table>
+									<thead>
+										<th class="padding-left-52">序号</th>
+										<th>数采仪名称</th>
+										<th>MN码</th>
+										<th>所属企业</th>
+									</thead>
+									<tbody>
+										<tr v-for="(t,i) in dataList" v-on:click="tabData(t)">
+											<td class="padding-left-52">
+												<div v-bind:class="['icon','icon-radio-box',t.isActive?'icon-radio-checked':'']"></div>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+											<td v-bind:title="t.name">{{t.name}}</td>
+											<td v-bind:title="t.mn">{{t.mn}}</td>
+											<td v-bind:title="t.companyName">{{t.companyName}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="page-box"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.companyId = "";
+		loadVue(".v-dom", param);
+
+		//确定上一级页面参数
+		function save() {
+			if(!dataInfo) {
+				layer.msg("请选择数采仪");
+				return false;
+			}
+			parent.getMaskData(function(layerDom, layerIframe) {
+				layerDom.find("#gatewayStationName").val(dataInfo.name);
+				layerDom.find("#gatewayStationId").val(dataInfo.id);
+				closeMask();
+			});
+		}
+
+		//		加载数据
+		function loadData() {
+			var companyId = setData.companyId;
+			var param = {
+				pageNo: pageNo,
+				name: $("#name").val(),
+				companyId: companyId
+			};
+			request('POST', '/company/gateway/queryList.do', param, true, function(res) {
+				var dataList = res.data.dataList;
+				resetDataInfo(dataList);
+				setData.dataList = dataList;
+				loadPage();
+			}, function() {
+				layer.msg("数采仪记录加载失败");
+			})
+		}
+	</script>
+
+</html>

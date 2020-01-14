@@ -1,0 +1,264 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../layui/css/layui.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="mask-box v-dom" v-cloak>
+			<div class="mask-inner-box">
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">设施类别：</span></div>
+					<div class="mask-list-value">
+						<select name="" id="type" class="required" onchange="selectType();">
+							<option value="">设施类别</option>
+							<option value="0">生产设施</option>
+							<option value="1">治理设施</option>
+						</select>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">单元名称：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="unitName" value="" class="required width-450 length-30" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">单元序号：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="unitSort" value="" class="required width-80 regular-num" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">设施名称：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="name" value="" class="required width-450 length-30" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">设施序号：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="facilitySort" value="" class="required width-80 regular-num" />
+					</div>
+				</div>
+				<div class="mask-list c_b">
+					<div class="mask-list-name"><span class="text">主供设施：</span></div>
+					<div class="mask-list-value">
+						<select name="" id="main" class="width-80">
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+						</select>
+					</div>
+					<div class="mask-unit-box">个</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">备供设施：</span></div>
+					<div class="mask-list-value">
+						<select name="" id="sub" class="width-80">
+							<option value="0">0</option>
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+						</select>
+					</div>
+					<div class="mask-unit-box">个</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">所属企业：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="companyName" disabled="disabled" class="required" />
+						<input type="hidden" name="" value="" id="companyId" class="required" />
+					</div>
+					<div class="btn-box" v-if="showSelectCompanyBtn">
+						<div class="btn-inner-box">
+							<div class="btn" onclick="selectCompany();">选择</div>
+						</div>
+					</div>
+				</div>
+				<div class="mask-row-list" v-if="type == '0'">
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">污染物种类：</span></div>
+						<div class="mask-list-value">
+							<select name="" id="pollutionType" class="required">
+								<option value="">污染物种类</option>
+								<option value="0">废水</option>
+								<option value="1">废气</option>
+							</select>
+						</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">排放形式：</span></div>
+						<div class="mask-list-value">
+							<select name="" id="emissionType" class="required">
+								<option value="">排放形式</option>
+								<option value="1">有组织排放</option>
+								<option value="0">无组织排放</option>
+							</select>
+						</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">排口类型：</span></div>
+						<div class="mask-list-value">
+							<select name="" id="emissionPortType" class="required">
+								<option value="">排口类型</option>
+								<option value="0">一般</option>
+								<option value="1">主要</option>
+								<option value="2">特殊排放口</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="mask-row-list" v-if="type == '1'">
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">排口：</span></div>
+						<div class="mask-list-value">
+							<input type="text" name="" value="" id="emissionPort" class="required" />
+						</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">生产设施：</span></div>
+						<div class="mask-list-value">
+							<input type="text" disabled="disabled" placeholder="暂无生产设施" v-if="contentList.length == 0" />
+							<ul class="range-box" v-else>
+								<li v-for="(t,i) in contentList">
+									{{t.name}}
+									<div class="icon icon-del-range" v-on:click="delContent(i);"></div>
+								</li>
+							</ul>
+						</div>
+						<div class="btn-box">
+							<div class="btn-inner-box">
+								<div class="btn" onclick="selectFacilityRange();">选择</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.type = "";
+		param.facilityIdList = [];
+		param.showSelectCompanyBtn = false;
+		loadVue(".v-dom", param);
+
+		function selectType(t) {
+			setData.type = $("#type").val();
+		}
+
+		function selectCompany() {
+			parent.openMask("/part/selectCompany", "选择企业", ["800px", "500px"], function(layerDom, layerIframe) {
+				var dataInfo = {
+					id: $("#companyId").val(),
+					name: $("#companyName").val()
+				}
+				layerIframe.dataInfo = dataInfo;
+				layerIframe.loadData();
+			});
+		}
+
+		function selectFacilityRange() {
+			var companyId = $("#companyId").val();
+			if(companyId == "") {
+				layer.msg("请选择企业");
+				return false;
+			}
+			parent.openMask("/part/selectFacilityRange", "生产设施", ["800px", "500px"], function(layerDom, layerIframe) {
+				layerIframe.setData.contentList = setData.contentList;
+				layerIframe.setData.type = "0";
+				layerIframe.setData.companyId = companyId;
+				layerIframe.loadSelectDataList();
+			});
+		}
+
+		//编辑
+		function save() {
+			var checkI = checkInput();
+			if(checkI == true) {
+				var parentData = setData.parentData;
+				var facilityIdList = [];
+				var contentList = setData.contentList;
+				for(var i = 0; i < contentList.length; i++) {
+					facilityIdList.push(contentList[i].id);
+				}
+				if($("#type").val() == "1") {
+					if(facilityIdList.length == 0) {
+						layer.msg("请选生产设施");
+						return false;
+					}
+					if(facilityIdList.length > 10) {
+						layer.msg("关联生产设施不能超过10个");
+						return false;
+					}
+				}
+				var param = {
+					type: $("#type").val(),
+					unitName: $("#unitName").val(),
+					name: $("#name").val(),
+					serialNumber: $("#facilitySort").val() + "-" + $("#unitSort").val(),
+					main: $("#main").val(),
+					sub: $("#sub").val(),
+					companyId: $("#companyId").val(),
+					companyName: $("#companyName").val(),
+					pollutionType: $("#pollutionType").val(),
+					emissionType: $("#emissionType").val(),
+					emissionPortType: $("#emissionPortType").val(),
+					emissionPort: $("#emissionPort").val(),
+					facilityIdList: facilityIdList
+				};
+				if(parentData) {
+					param.id = parentData.id;
+				}
+				request('POST', '/company/facility/saveOrUpdate.do', param, true, function(res) {
+						closeMask();
+						parent.layer.msg("操作成功");
+						parent.loadData();
+					},
+					function(res) {
+						layer.msg('操作失败，请检查网络或重试');
+					})
+			}
+		}
+
+		function loadFacility() {
+			var facilityIdList = setData.facilityIdList;
+			var param = {
+				idList: facilityIdList
+			}
+			request("POST", "/company/facility/queryList.do", param, true, function(res) {
+				setData.contentList = res.data.dataList;
+			}, function(res) {
+				layer.msg("设施加载失败")
+			})
+		}
+	</script>
+
+</html>

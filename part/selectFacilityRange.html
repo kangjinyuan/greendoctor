@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>思诺科技消安一体化平台</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon">
+		<link rel="stylesheet" href="../css/reset.css">
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362">
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+		<script src="../js/selectData.js?v=28e89f7647"></script>
+	</head>
+
+	<body>
+		<div class="mask-box v-dom" v-cloak>
+			<div class="mask-inner-box">
+				<div class="kjy-box kjy-flex-box">
+					<div class="search-box">
+						<div class="search-row-box">
+							<div class="search-list">
+								<div class="search-name">设施名称：</div>
+								<div class="search-value">
+									<input type="text" name="" value="" id="name" placeholder="设施名称">
+								</div>
+							</div>
+							<div class="search-btn-box">
+								<div class="btn" onclick="search();">查询</div>
+							</div>
+						</div>
+					</div>
+					<div class="kjy-data-box">
+						<div class="full-box" v-if="dataList.length == 0">
+							<div class="no-data-box">
+								<div class="no-data-inner-box">
+									<div class="icon icon-no-data"></div>
+									<div class="no-data-text">暂时没有设施记录哦</div>
+								</div>
+							</div>
+						</div>
+						<div class="kjy-data-inner-box" v-else>
+							<div class="kjy-table">
+								<table>
+									<thead>
+										<tr v-on:click="selectAllData()">
+											<th class="padding-left-52">
+												<div v-bind:class="['icon','icon-check-box',allIsActive?'icon-checked':'']"></div>序号</th>
+											<th>设施类型</th>
+											<th>单元名称</th>
+											<th>单元序号</th>
+											<th>设施名称</th>
+											<th>设施序号</th>
+											<th>所属企业</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-for="(t,i) in dataList" v-on:click="selectData(t)">
+											<td class="padding-left-52">
+												<div v-bind:class="['icon','icon-check-box',t.isActive?'icon-checked':'']"></div>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+											<td>{{t.typeText}}</td>
+											<td v-bind:title="t.unitName">{{t.unitName}}</td>
+											<td>{{t.unitSort}}</td>
+											<td v-bind:title="t.name">{{t.name}}</td>
+											<td>{{t.facilitySort}}</td>
+											<td v-bind:title="t.companyName">{{t.companyName}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="page-box"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.type = "";
+		param.companyId = "";
+		loadVue(".v-dom", param);
+
+		function save() {
+			var facilityIdList = [];
+			if(selectDataList.length == 0) {
+				layer.msg("请选择设施");
+				return false;
+			}
+			for(var i = 0; i < selectDataList.length; i++) {
+				facilityIdList.push(selectDataList[i].id);
+			}
+			parent.getMaskData(function(layerDom, layerIframe) {
+				layerIframe.setData.facilityIdList = facilityIdList;
+				layerIframe.loadFacility();
+				closeMask();
+			});
+		}
+
+		//		加载数据
+		function loadData() {
+			var type = setData.type;
+			var companyId = setData.companyId;
+			var param = {
+				pageNo: pageNo,
+				name: $("#name").val(),
+				companyId: companyId,
+				type: type
+			};
+			request('POST', '/company/facility/queryList.do', param, true, function(res) {
+				var dataList = res.data.dataList;
+				for(var i = 0; i < dataList.length; i++) {
+					var serialNumber = dataList[i].serialNumber.split("-");
+					dataList[i].unitSort = serialNumber[1];
+					dataList[i].facilitySort = serialNumber[0];
+					if(dataList[i].type == "0") {
+						dataList[i].typeText = "生产设施";
+					} else if(dataList[i].type == "1") {
+						dataList[i].typeText = "治理设施";
+					}
+				}
+				resetData(dataList);
+				setData.dataList = dataList;
+				loadPage();
+			}, function() {
+				layer.msg("设施记录加载失败");
+			})
+		}
+
+		function loadSelectDataList() {
+			var contentList = setData.contentList;
+			for(var i = 0; i < contentList.length; i++) {
+				selectDataList.push(contentList[i]);
+			}
+			loadData();
+		}
+	</script>
+
+</html>

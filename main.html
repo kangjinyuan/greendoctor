@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 	<head>
@@ -12,18 +12,17 @@
 		<meta http-equiv="Expires" content="0">
 		<link rel="shortcut icon" href="img/common/logo.png" type="image/x-icon" />
 		<link rel="stylesheet" href="css/reset.css" />
-		<link rel="stylesheet" href="css/common.css?v=c17b04b905" />
+		<link rel="stylesheet" href="css/common.css?v=04c77e4362" />
 		<link rel="stylesheet" href="layui/css/layui.css" />
-		<link rel="stylesheet" href="layui/css/modules/layer/default/layer.css" />
-		<link rel="stylesheet" href="css/main.css?v=78e2f1751b" />
-		<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+		<link rel="stylesheet" href="css/main.css?v=25910171ef" />
+		<script src="js/jquery-1.9.1.min.js"></script>
 		<script src="js/vue.min.js"></script>
 		<script src="layui/layui.js"></script>
 		<script src="layui/lay/modules/layer.js"></script>
-		<script src="js/postUrl.js?v=8de06d9e3a"></script>
-		<script src="js/common.js?v=aa38fd15c8"></script>
-		<script type="text/javascript" src="js/rightNav.js?v=d95feb26ca"></script>
-		<script src="js/init.js?v=2031dc1289"></script>
+		<script src="js/postUrl.js?v=027eb6ccff"></script>
+		<script src="js/common.js?v=64cf8bfbc7"></script>
+		<script src="js/rightNav.js?v=7472c8331e"></script>
+		<script src="js/init.js?v=0fca4c54ac"></script>
 
 	</head>
 
@@ -41,16 +40,16 @@
 				</div>
 				<div class="nav-box">
 					<ul class="layui-nav layui-nav-tree">
-						<li class="layui-nav-item" v-bind:data-select-icon="t.selectIcon" v-for="t in dataList" v-if="t.csub.length > 0">
+						<li class="layui-nav-item" v-bind:data-select-icon="t.selectIcon" v-for="t in dataList" v-if="t.childList.length > 0">
 							<div class="disclick-box" v-if="!menuSwitch" v-on:mouseover="showChildMenu($event);"></div>
 							<a href="javascript:;">
-								<i v-bind:class="['icon', t.icon, menuSwitch?'':'icon-position-center']"></i>{{menuSwitch?t.title:''}}
+								<i v-bind:class="['icon', t.icon, menuSwitch?'':'icon-position-center']"></i>{{menuSwitch?t.name:''}}
 								<span class="layui-nav-more" v-if="menuSwitch"></span>
 							</a>
 							<div v-bind:class="['layui-nav-child',menuSwitch?'':'nav-child-box']" v-bind:onmouseleave="menuSwitch?'':'closeAllNav();'">
 								<ul>
-									<li v-for="t in t.csub">
-										<a v-bind:data-page="t.page" v-bind:data-id="t.id">{{t.title}}</a>
+									<li v-for="t in t.childList">
+										<a v-bind:data-path="t.path" v-bind:data-id="t.id">{{t.name}}</a>
 									</li>
 								</ul>
 							</div>
@@ -63,7 +62,7 @@
 					<div class="user-info-inner-box">
 						<div v-bind:class="['menu-switch','icon-menu-retract','f_l',menuSwitch?'':'icon-menu-open']" onclick="menuSwitch(this);"></div>
 						<div class="user-info-text f_l">{{currentTime}}</div>
-						<div class="user-info-text f_r">Hi,{{accountName}}[<span onclick="quit();">退出</span>]</div>
+						<div class="user-info-text f_r">Hi,{{accountInfo.name}}[<span onclick="quit();">退出</span>]</div>
 					</div>
 				</div>
 				<div class="layui-tab" lay-filter="kjy" lay-allowclose="true">
@@ -72,7 +71,7 @@
 					</ul>
 					<div class="layui-tab-content">
 						<div class="layui-tab-item layui-show">
-							<iframe v-bind:src="'index.html?timestamp='+timestamp" frameborder='0' marginheight='0' marginwidth='0' scrolling='yes' width='100%'></iframe>
+							<iframe v-bind:src="path" frameborder='0' marginheight='0' marginwidth='0' scrolling='yes' width='100%'></iframe>
 						</div>
 					</div>
 				</div>

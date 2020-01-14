@@ -1,21 +1,23 @@
-.login-box{width: 100%;height: 100%;min-width: 1200px;min-height: 550px;overflow:hidden;background: url(../img/common/login-bg.png) center center no-repeat;background-size: auto 100%;position: absolute;top: 0px;left: 0px;}
-.login-inner-box{width: 684px;height: 310px;padding:88px 60px 90px 92px;background-color:#fff;border-radius: 30px;position: absolute;top: 0;left: 0;right: 0;bottom: 0;margin: auto auto;}
+.login-box{width: 100%;height: 100%;min-width: 1200px;min-height: 550px;overflow:hidden;background: url(../img/login/login-bg.png) center center no-repeat;background-size: auto 100%;position: absolute;top: 0px;left: 0px;}
+.login-inner-box{width: 682px;height: 418px;padding:45px 60px 25px 94px;background-color:#fff;border-radius: 30px;position: absolute;top: 0;left: 0;right: 0;bottom: 0;margin: auto auto;}
 .login-content-box{width: 100%;height: 100%;position: relative;}
-.illustration-box{width: 324px;height: 420px;background: url(../img/login/login-illustration.png) no-repeat;background-size: 100% 100%;position: absolute;top: 0;bottom: 0;left: 0;margin: auto auto;}
-.login-opera-box{width: 280px;float: right;}
-.title{width: 100%;height: 68px;font:bold 28px/28px 微软雅黑;color: #333;text-align: center;}
+.illustration-box,.login-opera-box{height: 100%;position: relative;}
+.illustration-box{width: 325px;float: left;background: url(../img/login/login-illustration.png) no-repeat;background-size: 100% 100%;}
+.login-opera-box{width: 250px;float: right;}
+.login-opera-inner-box{width: 100%;overflow: hidden;position: absolute;top: 50%;left: 0;position: absolute;top: 50%;left: 0;-webkit-transform: translateY(-50%);-moz-transform: translateY(-50%);-o-transform: translateY(-50%);-ms-transform: translateY(-50%);}
+.title{width: 100%;height: 64px;font: bold 24px 微软雅黑;color: #333;text-align: center;}
 .login-list-box{width: 100%;overflow: hidden;}
-.login-list{width: auto;height: 22px;margin-bottom: 30px;padding:0px 0px 20px 50px;border-bottom:2px solid #eee;position: relative;}
+.login-list{width: auto;height: 22px;margin-bottom: 28px;padding: 0px 0px 14px 40px;border-bottom:2px solid #eee;position: relative;}
 .login-list:last-child{margin-bottom: 0px;}
 .login-input-box{width: 100%;height: 100%;}
-.login-inputCode-box{width: 142px;}
+.login-input-code-box{width: 140px;}
 .login-input-box input{width: 100%;height: 100%;background-color:#fff;border: none;outline: none;font: 12px 微软雅黑;color: #333;}
-.login-inputCode-text-box{cursor: pointer;width: 68px;height:30px;border-radius:6px;background-color:#3c766a;font: 12px/30px 微软雅黑;color: #fff;text-align: center;letter-spacing: 2px;}
-.login-btn{cursor: pointer;width: 220px;height: 44px;margin: 40px auto 0px;border-radius:26px;font:12px/44px 微软雅黑;text-align:center;}
+.login-input-code-text-box{cursor: pointer;width: 70px;height: 26px;border-radius:6px;background-color:#3c766a;font: 12px/26px 微软雅黑;color: #fff;text-align: center;letter-spacing: 2px;}
+.login-btn{cursor: pointer;width: 222px;height: 38px;margin: 40px auto 52px;border-radius:26px;font:12px/38px 微软雅黑;text-align:center;}
 .login-disabled-btn{color:#999;background-color:#ebebeb;}
 .login-abled-btn{color:#fff;background-color: #3c766a;}
-.copyright{width: 100%;font: 12px 微软雅黑;color: #fff;text-align: center;position: absolute;bottom: 20px;left: 0;}
-.icon{width: 22px;height: 22px;position: absolute;top: 0;left: 10px;background-position:center center;background-repeat: no-repeat;background-size: auto 100%;} 
+.copyright{width: 100%;font: 10px 微软雅黑;color: #666;text-align: center;}
+.icon{width: 22px;height: 22px;position: absolute;top: 0;left: 8px;background-position:center center;background-repeat: no-repeat;background-size: auto 100%;} 
 .icon-account{background-image: url(../img/login/icon-account.png);}
 .icon-password{background-image: url(../img/login/icon-password.png);}
 .icon-token{background-image: url(../img/login/icon-token.png);}

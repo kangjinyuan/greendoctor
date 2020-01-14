@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../layui/css/layui.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.qrcode.js"></script>
+		<script src="../js/utf.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="search-box">
+				<div class="search-row-box">
+					<div class="search-list">
+						<div class="search-name">开始时间：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="startTime" placeholder="yyyy-mm-dd" />
+						</div>
+					</div>
+					<div class="search-list">
+						<div class="search-name">结束时间：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="endTime" placeholder="yyyy-mm-dd" />
+						</div>
+					</div>
+					<div class="search-btn-box">
+						<div class="btn" onclick="search();">查询</div>
+						<div class="btn" onclick="reloadPage();">重置</div>
+					</div>
+				</div>
+			</div>
+			<div class="kjy-data-box">
+				<div class="no-data-box" v-if="dataList.length == 0">
+					<div class="no-data-inner-box">
+						<div class="icon icon-no-data"></div>
+						<div class="no-data-text">暂时没有日志记录哦</div>
+					</div>
+				</div>
+				<div class="kjy-data-inner-box" v-else>
+					<div class="kjy-table">
+						<table>
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>用户名称</th>
+									<th>用户操作</th>
+									<th>操作内容</th>
+									<th>操作企业</th>
+									<th>创建时间</th>
+								</tr>
+							</thead>
+
+							<tbody id="tbody">
+								<tr v-for="(t,i) in dataList">
+									<td>{{((pageNo-pageSize)*20)+(i+1)}}</td>
+									<td>{{t.accountName}}</td>
+									<td>{{t.operaName}}</td>
+									<td>{{t.operaContent}}</td>
+									<td>{{t.enterprise}}</td>
+									<td>{{t.createTime}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="page-box"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		loadVue(".v-dom", param);
+		$(function() {
+			setTime('#startTime', "datetime", "yyyy-MM-dd HH:mm:ss");
+			setTime('#endTime', "datetime", "yyyy-MM-dd HH:mm:ss");
+		})
+
+		//		加载数据
+		function loadData() {
+			//			var param = {
+			//				page: page,
+			//				company: $("#company").val()
+			//			};
+			//			request('POST', '/account/administrator/queryList.do', param, true, function(res) {
+			//				var dataList = res.data;
+			var dataList = [{
+				id: "1",
+				accountName: "超级管理员",
+				operaName: "新建用户",
+				operaContent: "新建了一个用户",
+				enterprise: "北京闪向科技有限公司",
+				createTime: "2019-12-13 14:30:25"
+			}]
+			setData.dataList = dataList;
+			setData.totalPage = 1;
+			setData.pageSize = 1;
+			setData.pageNo = 1;
+			setData.count = 1;
+			resetPage();
+			loadPage();
+			//			}, function(res) {
+			//				layer.msg("日志记录加载失败");
+			//			})
+		}
+		loadData();
+	</script>
+
+</html>

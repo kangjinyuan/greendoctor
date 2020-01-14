@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 
 	<head>
@@ -13,67 +13,75 @@
 		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
 		<link rel="stylesheet" href="../css/reset.css" />
 		<link rel="stylesheet" href="../layui/css/layui.css" />
-		<link rel="stylesheet" href="../css/common.css?v=c17b04b905" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
 		<script src="../js/jquery-1.9.1.min.js"></script>
 		<script src="../layui/layui.all.js"></script>
-		<script src="../js/postUrl.js?v=8de06d9e3a"></script>
-		<script src="../js/common.js?v=aa38fd15c8"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
 	</head>
 
 	<body>
-		<div class="main-mask main-mask-bottom">
-			<div class="con">
+		<div class="mask-box">
+			<div class="mask-inner-box">
 				<div class="mask-list">
-					<div class="mask-list-name"><span>*</span><span class="text">新联MN码</span>：</div>
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">郑州环保MN码：</span></div>
 					<div class="mask-list-value">
 						<input type="text" name="" id="xlMN" value="" disabled="disabled" class="required" />
 					</div>
 				</div>
 				<div class="mask-list">
-					<div class="mask-list-name"><span>*</span><span class="text">新联设备</span>：</div>
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">郑州环保设施：</span></div>
 					<div class="mask-list-value">
 						<input type="text" name="" id="xlSubDevCode" value="" class="required" />
 					</div>
 				</div>
 				<div class="mask-list">
-					<div class="mask-list-name"><span>*</span><span class="text">安科瑞MN码</span>：</div>
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">安科瑞MN码：</span></div>
 					<div class="mask-list-value">
 						<input type="text" name="" value="" id="acrelMN" disabled="disabled" class="required" />
 					</div>
 				</div>
 				<div class="mask-list">
-					<div class="mask-list-name"><span>*</span><span class="text">安科瑞设备</span>：</div>
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">安科瑞设施：</span></div>
 					<div class="mask-list-value">
-						<input type="text" name="" value="" id="acrelSubDevCode" class="required" />
+						<input type="text" name="" value="ea3001" disabled="disabled" id="acrelSubDevCodeKey" class="width-80" />
+						<span>-</span>
+						<input type="text" name="" value="" id="acrelSubDevCodeValue" class="required width-80" />
 					</div>
 				</div>
 			</div>
-			<div class="mask-btn-box">
-				<div class="btn-box">
-					<div class="btn icon icon-save" onclick="edit();" id="creatsave">确定</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
 				</div>
 			</div>
 		</div>
 	</body>
 	<script>
 		//编辑
-		function edit() {
+		function save() {
 			var checkI = checkInput();
 			if(checkI == true) {
+				if($("#acrelSubDevCodeValue").val().length != 2) {
+					layer.msg("安科瑞设施编码为2位数，请核对");
+					return false;
+				}
 				var param = {
 					xlMN: $("#xlMN").val(),
 					xlSubDevCode: $("#xlSubDevCode").val(),
 					acrelMN: $("#acrelMN").val(),
-					acrelSubDevCode: $("#acrelSubDevCode").val()
+					acrelSubDevCode: $("#acrelSubDevCodeKey").val() + $("#acrelSubDevCodeValue").val()
 				};
 				request('POST', '/company/monitorRelationShip/save.do', param, true,
 					function(res) {
-						parent.layer.close(parent.ifameIndex);
+						closeMask();
 						parent.layer.msg("操作成功");
+						parent.loadData();
 					},
 					function(res) {
 						if(res.code == "0004") {
-							layer.msg("该设备已存在");
+							layer.msg("该设施已存在");
 						} else {
 							layer.msg('操作失败，请检查网络或重试');
 						}

@@ -1,75 +1,42 @@
-//引入gulp及gulp插件
-var gulp = require("gulp"),
-	runSequence = require('run-sequence'),
-	rev = require('gulp-rev'),
-	revCollector = require('gulp-rev-collector'),
-	convertEncoding = require('gulp-convert-encoding');
-
-//定义js源文件路径
-var app = "js/app.js",
-	common = "js/common.js",
-	init = "js/init.js",
-	login = "js/login.js",
-	rightNav = "js/rightNav.js",
-	selectExcel = "js/selectExcel.js",
-	upload = "js/upload.js",
-	postUrl = "js/postUrl.js",
-	editInit = "js/editInit.js",
-	ChinaNumToEnglishNum = "js/ChinaNumToEnglishNum.js",
-	//css文件路径
-	appcss = "css/app.css",
-	commoncss = "css/common.css",
-	logincss = "css/login.css",
-	maincss = "css/main.css";
-
-var jsonArr = [app, common, init, login, rightNav, selectExcel, upload, postUrl, editInit, ChinaNumToEnglishNum, appcss, commoncss, logincss, maincss];
-
-//生成对应的json文件
-//teskName:任务名称
-//path:存储路径
-
-function revFile(teskName, jsonArr, path) {
-	gulp.task(teskName, function() {
-		return gulp.src(jsonArr)
-			.pipe(rev())
-			.pipe(rev.manifest())
-			.pipe(gulp.dest(path));
-	});
-}
-
-var replacePath = ['rev/rev-manifest.json', './*.html'];
-var replacePagesPath = ['rev/rev-manifest.json', 'pages/*.html'];
-var replacePartPath = ['rev/rev-manifest.json', 'part/*.html'];
-var replaceMobilePath = ['rev/rev-manifest.json', 'mobile/*.html'];
-
-function replaceFile(teskName, replacePathArr, savePath) {
-	gulp.task(teskName, function() {
-		return gulp.src(replacePathArr)
-			.pipe(revCollector())
-			.pipe(convertEncoding({
-				iconv: {
-					decode: {},
-					encode: {
-						addBOM: true
-					}
-				},
-				to: "utf8"
-			}))
-			.pipe(gulp.dest(savePath));
-	});
-}
-
-revFile("revJson", jsonArr, "rev");
-replaceFile("replaceJson", replacePath, "./");
-replaceFile("replacePagesJson", replacePagesPath, "pages");
-replaceFile("replacePartJson", replacePartPath, "part");
-replaceFile("replaceMobileJson", replaceMobilePath, "mobile");
-
-//开发构建
-gulp.task('dev', function(done) {
-	condition = false;
-	runSequence(
-		['revJson'], ['replaceJson'], ['replacePagesJson'], ['replacePartJson'], ['replaceMobileJson'], done);
+var gulp = require("gulp");
+var gulpLoadPlugins = require('gulp-load-plugins');
+var $ = gulpLoadPlugins({
+	lazyload: true,
+	rename: {
+		"gulp-ruby-sass": "sass",
+		"gulp-markdown-pdf": "mdpdf",
+		"gulp-rev-collector": "revCollector",
+		"gulp-asset-rev": "assetRev"
+	}
 });
 
-gulp.task('default', ['dev']);
+var cssList = ["css/app.css", "css/common.css", "css/login.css", "css/main.css"];
+var jsList = ["js/app.js", "js/common.js", "js/init.js", "js/login.js", "js/selectData.js","js/rightNav.js", "js/upload.js", "js/postUrl.js", "js/editInit.js", "js/ChinaNumToEnglishNum.js"];
+
+function resetFile(taskName, srcList, fileType) {
+	gulp.task(taskName, function(done) {
+		return gulp.src(srcList)
+			.pipe($.rev()) //添加hash后缀
+			.pipe($.rev.manifest()) //生成文件映射
+			.pipe(gulp.dest("rev/" + fileType)) //将映射文件导出到rev/css中
+		done()
+	});
+}
+
+function resetHtml(taskName, savePath) {
+	gulp.task(taskName, function(done) {
+		return gulp.src(["rev/**/*.json", savePath + "/*.html"])
+			.pipe($.revCollector())
+			.pipe(gulp.dest(savePath))
+		done()
+	});
+}
+
+resetFile("resetCss", cssList, "css");
+resetFile("resetJS", jsList, "js");
+resetHtml("resetMainHtml", ".");
+resetHtml("resetPagesHtml", "pages");
+resetHtml("resetPartHtml", "part");
+resetHtml("resetMobileHtml", "mobile");
+
+gulp.task('default', gulp.series("resetCss", "resetJS", gulp.parallel("resetMainHtml", "resetPagesHtml", "resetPartHtml")));

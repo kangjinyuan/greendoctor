@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 
 	<head>
@@ -12,103 +12,111 @@
 		<meta http-equiv="Expires" content="0">
 		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
 		<link rel="stylesheet" href="../css/reset.css" />
-		<link rel="stylesheet" href="../css/common.css?v=c17b04b905" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
 		<script src="../js/jquery-1.9.1.min.js"></script>
 		<script src="../layui/layui.all.js"></script>
 		<script src="../js/vue.min.js"></script>
 		<script src="../js/jquery.qrcode.js"></script>
 		<script src="../js/utf.js"></script>
-		<script src="../js/postUrl.js?v=8de06d9e3a"></script>
-		<script src="../js/common.js?v=aa38fd15c8"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
 	</head>
 
 	<body>
 		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
 			<div class="search-box">
-				<div class="search-inner-box">
-					<div class="search-text">
-						<div class="search">
-							<div class="search-name">新联设备：</div>
-							<div class="search-value">
-								<input type="text" name="" value="" id="xlSubDevCode" placeholder="输入新联设备编码" />
-							</div>
+				<div class="search-row-box">
+					<div class="search-list">
+						<div class="search-name">郑州环保设施：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="xlSubDevCode" placeholder="郑州环保设施" />
 						</div>
-						<div class="search">
-							<div class="search-name">安科瑞设备：</div>
-							<div class="search-value">
-								<input type="text" name="" value="" id="acrelSubDevCode" placeholder="输入安科瑞设备编码" />
-							</div>
+					</div>
+					<div class="search-list">
+						<div class="search-name">安科瑞设施：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="acrelSubDevCode" placeholder="安科瑞设施" />
+
 						</div>
+					</div>
+					<div class="search-btn-box">
+						<div class="btn" onclick="search();">查询</div>
+						<div class="btn" onclick="reloadPage();">重置</div>
 					</div>
 				</div>
 			</div>
 			<div class="btn-box">
 				<div class="btn-inner-box">
-					<div class="btn icon icon-search" onclick="sreach();">查询</div>
-					<div class="btn icon icon-add" onclick="showMonitorRelationShip()">新建设备</div>
-					<div class="btn icon icon-reload" onclick="reloadPage();">刷新</div>
+					<div class="btn" onclick="monitorRelationShip();">新建</div>
 				</div>
 			</div>
-			<div class="no-data-box" v-if="dataList.length == 0">
-				<div class="no-data-inner-box">
-					<div class="icon icon-no-data"></div>
-					<div class="no-data-text">暂时没有设备记录哦</div>
+			<div class="kjy-data-box">
+				<div class="no-data-box" v-if="dataList.length == 0">
+					<div class="no-data-inner-box">
+						<div class="icon icon-no-data"></div>
+						<div class="no-data-text">暂时没有设施记录哦</div>
+					</div>
 				</div>
-			</div>
-			<div class="kjy-table" v-else>
-				<table>
-					<thead>
-						<tr>
-							<th>序号</th>
-							<th>新联MN码</th>
-							<th>新联设备</th>
-							<th>安科瑞MN码</th>
-							<th>安科瑞设备</th>
-							<th>创建时间</th>
-							<th>操作</th>
-						</tr>
-					</thead>
+				<div class="kjy-data-inner-box" v-else>
+					<div class="kjy-table">
+						<table>
+							<thead>
+								<tr>
+									<th>序号</th>
+									<th>郑州环保MN码</th>
+									<th>郑州环保设施</th>
+									<th>安科瑞MN码</th>
+									<th>安科瑞设施</th>
+									<th>创建时间</th>
+									<th>操作</th>
+								</tr>
+							</thead>
 
-					<tbody id="tbody">
-						<tr v-for="(t,i) in dataList">
-							<td>{{((pageNo-1)*20)+(i+1)}}</td>
-							<td>{{t.xlMN}}</td>
-							<td>{{t.xlSubDevCode}}</td>
-							<td>{{t.acrelMN}}</td>
-							<td>{{t.acrelSubDevCode}}</td>
-							<td>{{t.createTime}}</td>
-							<td>
-								<div class="btn icon icon-del" v-on:click="del(t.id)">删除</div>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+							<tbody id="tbody">
+								<tr v-for="(t,i) in dataList">
+									<td>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+									<td>{{t.xlMN}}</td>
+									<td>{{t.xlSubDevCode}}</td>
+									<td>{{t.acrelMN}}</td>
+									<td>{{t.acrelSubDevCode}}</td>
+									<td>{{t.createTime}}</td>
+									<td>
+										<ul class="opera-box">
+											<li v-on:click="del(t)">删除</li>
+										</ul>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="page-box"></div>
+				</div>
 			</div>
-			<div class="page-box"></div>
 		</div>
 	</body>
 	<script>
 		loadVue(".v-dom", param);
-		loadPage(0);
-		var parentData = parent.setData.parentData;
 
 		//新建或编辑
-		function showMonitorRelationShip() {
-			var dataList = setData.dataList;
-			if(dataList.length >= 30) {
-				layer.msg("基站最多监测30个设备哦");
+		function monitorRelationShip() {
+			var parentData = setData.parentData;
+			var count = setData.count;
+			if(count.length >= 30) {
+				layer.msg("基站最多监测30个设施哦");
 				return false;
 			}
-			openMask("../part/monitorRelationShip", "新建设备", ["320px", "226px"], function(layerDom, layerIframe) {
+			openMask("/part/monitorRelationShip", "新建设施", ["310px", "256px"], function(layerDom, layerIframe) {
 				layerDom.find("#xlMN").val(parentData.xlMN);
 				layerDom.find("#acrelMN").val(parentData.acrelMN);
-				judeEdit(0, layerDom);
 			})
 		}
 
 		//删除数据
-		function del(id) {
-			delOneData(id, "确定删除该设备吗？", 1, function(param) {
+		function del(obj) {
+			openConfirm("确定删除该设施吗？", function() {
+				var param = {
+					id: obj.id
+				}
 				request('POST', '/company/monitorRelationShip/delete.do', param, true, function(res) {
 					loadData();
 					layer.closeAll('dialog');
@@ -120,6 +128,7 @@
 
 		//		加载数据
 		function loadData() {
+			var parentData = setData.parentData;
 			var param = {
 				pageNo: pageNo,
 				xlMN: parentData.xlMN,
@@ -129,11 +138,11 @@
 			};
 			request('POST', '/company/monitorRelationShip/queryList.do', param, true, function(res) {
 				setData.dataList = res.data.dataList;
+				loadPage();
 			}, function(res) {
-				layer.msg("设备记录加载失败");
+				layer.msg("设施记录加载失败");
 			})
 		}
-		loadData();
 	</script>
 
 </html>

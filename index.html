@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 
 	<head>
@@ -12,20 +12,410 @@
 		<meta http-equiv="Expires" content="0">
 		<link rel="shortcut icon" href="img/logo.png" type="image/x-icon" />
 		<link rel="stylesheet" href="css/reset.css" />
-		<link rel="stylesheet" href="css/common.css?v=c17b04b905" />
+		<link rel="stylesheet" href="css/common.css?v=04c77e4362" />
 		<script src="js/jquery-1.9.1.min.js"></script>
 		<script src="layui/layui.all.js"></script>
-		<script src="js/postUrl.js?v=8de06d9e3a"></script>
-		<script src="js/common.js?v=aa38fd15c8"></script>
+		<script src="js/echarts-all-3.js"></script>
+		<script src="js/postUrl.js?v=027eb6ccff"></script>
+		<script src="js/common.js?v=64cf8bfbc7"></script>
 	</head>
 
 	<body>
-		<div class="kjy-box kjy-flex-box index-box">
-			<div class="title-box">
-				<div class="title-text">欢迎进入排污用电监测系统！</div>
-				<div class="title-text title-describe">WELCOME！</div>
+		<div class="kjy-box">
+			<div class="row-list-box column-list-width-40 row-list-left">
+				<div class="row-list-inner-box">
+					<div class="row-list-title-box">
+						<div class="row-list-title-text">
+							概况
+						</div>
+					</div>
+					<div class="row-list-content-box">
+						<ul>
+							<li>
+								<div class="row-list-name">企业数量</div>
+								<div class="row-list-value">15</div>
+							</li>
+							<li>
+								<div class="row-list-name">产污设施</div>
+								<div class="row-list-value">15</div>
+							</li>
+							<li>
+								<div class="row-list-name">污处设施</div>
+								<div class="row-list-value">15</div>
+							</li>
+							<li>
+								<div class="row-list-name">监测点</div>
+								<div class="row-list-value">50</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row-list-box column-list-width-30 row-list-center">
+				<div class="row-list-inner-box">
+					<div class="row-list-title-box">
+						<div class="row-list-title-text">
+							治污设施异常
+						</div>
+					</div>
+					<div class="row-list-content-box">
+						<ul>
+							<li>
+								<div class="row-list-name">异常企业</div>
+								<div class="row-list-value">15</div>
+							</li>
+							<li>
+								<div class="row-list-name">涉污设施</div>
+								<div class="row-list-value">15</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row-list-box column-list-width-30 row-list-right">
+				<div class="row-list-inner-box">
+					<div class="row-list-title-box">
+						<div class="row-list-title-text">
+							限产/停产异常企业
+						</div>
+					</div>
+					<div class="row-list-content-box">
+						<ul>
+							<li>
+								<div class="row-list-name">限产/停产</div>
+								<div class="row-list-value">15/0</div>
+							</li>
+							<li>
+								<div class="row-list-name">未执行</div>
+								<div class="row-list-value">15</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row-list-box column-list-width-100">
+				<div class="row-list-inner-box">
+					<div class="row-list-title-box">
+						<div class="row-list-title-text">
+							污染源企业分布
+						</div>
+					</div>
+					<div class="row-list-content-box">
+						<div class="row-list-canvas-box company-distribution-box"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row-list-box column-list-width-50">
+				<div class="row-list-inner-box">
+					<div class="row-list-title-box">
+						<div class="row-list-title-text">
+							近7天异常排名
+						</div>
+					</div>
+					<div class="row-list-content-box">
+						<div class="row-list-canvas-box abnormal-ranking-box"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row-list-box column-list-width-50">
+				<div class="row-list-inner-box">
+					<div class="row-list-title-box">
+						<div class="row-list-title-text">
+							近7天用电量
+						</div>
+					</div>
+					<div class="row-list-content-box">
+						<div class="row-list-canvas-box electric-consumption-box"></div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</body>
+	<script>
+		var companyDistribution = echarts.init($(".company-distribution-box").get(0));
+		var abnormalRanking = echarts.init($(".abnormal-ranking-box").get(0));
+		var electricConsumption = echarts.init($(".electric-consumption-box").get(0));
+
+		function resetChartSize() {
+			bindWindowChange(function() {
+				companyDistribution.resize();
+				abnormalRanking.resize();
+				electricNumber.resize();
+			})
+		}
+
+		function getCompanyDistribution() {
+			var city = ["郑州市", "开封市", "洛阳市", "平顶山市", "安阳市", "鹤壁市", "新乡市", "焦作市", "濮阳市", "许昌市", "漯河市", "三门峡市", "南阳市", "商丘市", "信阳市", "周口市", "驻马店市"];
+			var totalValue = ["361", "164", "231", "70", "89", "50", "254", "77", "136", "168", "143", "99", "143", "176", "62", "18", "186", "113"];
+			companyDistribution.setOption({
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {
+						type: 'cross'
+					}
+				},
+				grid: {
+					left: "50",
+					right: "10",
+					top: "20",
+					bottom: "50"
+				},
+				xAxis: [{
+					type: 'category',
+					data: city,
+					axisLabel: {
+						interval: 0,
+						rotate: 315,
+						textStyle: {
+							color: "#686a6c"
+						}
+					},
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					}
+				}],
+				yAxis: [{
+					type: 'value',
+					axisLabel: {
+						interval: 0,
+						textStyle: {
+							color: "#686a6c"
+						}
+					},
+					splitLine: {
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					},
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					}
+				}],
+				series: [{
+					name: '污染企业分布',
+					type: 'bar',
+					barWidth: 20,
+					label: {
+						normal: {
+							show: true,
+							position: "top",
+							textStyle: {
+								color: "#333"
+							}
+						}
+					},
+					itemStyle: {
+						normal: {
+							color: new echarts.graphic.LinearGradient(
+								0, 1, 0, 0, [{
+										offset: 0,
+										color: '#0aa182'
+									},
+									{
+										offset: 1,
+										color: '#29efc6'
+									}
+								]
+							),
+							barBorderRadius: 10
+						}
+					},
+					data: totalValue
+				}]
+			}, true);
+		}
+
+		function getAbnormalRanking() {
+			var city = ["郑州市", "开封市", "洛阳市", "平顶山市", "安阳市"];
+			var abnormalRankingNumber = ["56", "77", "102", "134", "176"];
+			abnormalRanking.setOption({
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {
+						type: 'cross'
+					}
+				},
+				grid: {
+					left: "70",
+					right: "10",
+					top: "0",
+					bottom: "20"
+				},
+				xAxis: [{
+					type: 'value',
+					axisLabel: {
+						interval: 0,
+						textStyle: {
+							color: "#686a6c"
+						}
+					},
+					splitLine: {
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					},
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					}
+				}],
+				yAxis: [{
+					type: 'category',
+					data: city,
+					axisLabel: {
+						interval: 0,
+						textStyle: {
+							color: "#686a6c"
+						}
+					},
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					}
+				}],
+				series: [{
+					name: '排名',
+					type: 'bar',
+					barWidth: 14,
+					hoverAnimation: true,
+					label: {
+						normal: {
+							show: true,
+							position: 'top',
+							textStyle: {
+								color: "#333"
+							}
+						}
+					},
+					itemStyle: {
+						normal: {
+							color: new echarts.graphic.LinearGradient(
+								0, 0, 1, 0, [{
+										offset: 0,
+										color: '#0aa182'
+									},
+									{
+										offset: 1,
+										color: '#29efc6'
+									}
+								]
+							),
+							barBorderRadius: 7
+						}
+					},
+					data: abnormalRankingNumber
+				}]
+			}, true);
+		}
+
+		function getElectricConsumption() {
+			var dateArray = getAppointDate(7, 0);
+			var electricValue = ["132", "83", "19", "111", "834", "143", "576"];
+			electricConsumption.setOption({
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {
+						type: 'cross'
+					}
+				},
+				grid: {
+					left: "30",
+					right: "10",
+					top: "20",
+					bottom: "20"
+				},
+				xAxis: [{
+					type: 'category',
+					data: dateArray,
+					axisTick: {
+						alignWithLabel: true
+					},
+					axisLabel: {
+						interval: 0,
+						textStyle: {
+							color: "#666"
+						}
+					},
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					}
+				}],
+				yAxis: [{
+					type: 'value',
+					axisLabel: {
+						interval: 0,
+						textStyle: {
+							color: "#666"
+						}
+					},
+					splitLine: {
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					},
+					axisLine: {
+						show: true,
+						lineStyle: {
+							color: ["#e5e5e5"]
+						}
+					}
+				}],
+				series: [{
+					name: '用电量（万度）',
+					type: 'line',
+					smooth: true,
+					symbol: "circle",
+					symbolSize: 3,
+					itemStyle: {
+						normal: {
+							color: '#0aa182',
+							borderWidth: 3,
+							borderColor: "#9dd9cd"
+						}
+					},
+					lineStyle: {
+						normal: {
+							color: '#0aa182',
+							width: 1.5
+						}
+					},
+					areaStyle: {
+						normal: {
+							color: new echarts.graphic.LinearGradient(
+								0, 1, 0, 0, [{
+										offset: 0,
+										color: '#fff'
+									},
+									{
+										offset: 1,
+										color: '#53bda7'
+									}
+								]
+							)
+						}
+					},
+					data: electricValue
+				}]
+			}, true);
+		}
+
+		resetChartSize();
+		getCompanyDistribution();
+		getAbnormalRanking();
+		getElectricConsumption();
+	</script>
 
 </html>

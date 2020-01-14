@@ -1,29 +1,59 @@
 [{
-	"id" : "0",
-	"title" : "基础数据管理",
-	"icon" : "icon-base-info",
-	"selectIcon" : "icon-select-base-info",
+	"id" : "1",
+	"name" : "数据查看",
+	"icon" : "icon-see-data",
+	"selectIcon" : "icon-select-see-data",
 	"sort":"999",
-	"isActive":true,
-	"csub" : [{
-		"id":"0-0",
-        "title":"基站管理",
-        "page":"pages/stationRelationShip",
+	"isActive":false,
+	"childList" : [{
+		"id":"1-1",
+        "name":"数据查看",
+        "path":"/pages/dataView",
         "sort" : "999",
         "isActive":true
 	}]
 },{
-	"id" : "1",
-	"title" : "用户管理",
-	"icon" : "icon-user",
-	"selectIcon" : "icon-select-user",
+	"id" : "2",
+	"name" : "基础数据管理",
+	"icon" : "icon-base-info",
+	"selectIcon" : "icon-select-base-info",
 	"sort":"998",
 	"isActive":false,
-	"csub" : [{
-		"id":"1-0",
-        "title":"用户管理",
-        "page":"part/noOpen",
+	"childList" : [{
+		"id":"2-1",
+        "name":"企业管理",
+        "path":"/pages/company",
         "sort" : "999",
+        "isActive":true
+	},{
+		"id":"2-2",
+        "name":"数采仪管理",
+        "path":"/pages/gateway",
+        "sort" : "998",
+        "isActive":true
+	},{
+		"id":"2-3",
+        "name":"设施管理",
+        "path":"/pages/facility",
+        "sort" : "997",
+        "isActive":true
+	},{
+		"id":"2-4",
+        "name":"监测点管理",
+        "path":"/pages/monitor",
+        "sort" : "996",
+        "isActive":true
+	},{
+		"id":"2-5",
+        "name":"行业管理",
+        "path":"/pages/industryCategory",
+        "sort" : "995",
+        "isActive":true
+	},{
+		"id":"2-6",
+        "name":"用户管理",
+        "path":"/pages/account",
+        "sort" : "994",
         "isActive":true
 	}]
 }]

@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 
 	<head>
@@ -12,12 +12,12 @@
 		<meta http-equiv="Expires" content="0">
 		<link rel="shortcut icon" href="img/common/logo.png" type="image/x-icon" />
 		<link rel="stylesheet" href="css/reset.css" />
-		<link rel="stylesheet" href="css/login.css?v=a338f095a6" />
+		<link rel="stylesheet" href="css/login.css?v=5d25716d68" />
 		<script src="js/jquery-1.9.1.min.js"></script>
-		<script src="js/postUrl.js?v=8de06d9e3a"></script>
-		<script src="js/common.js?v=aa38fd15c8"></script>
+		<script src="js/postUrl.js?v=027eb6ccff"></script>
+		<script src="js/common.js?v=64cf8bfbc7"></script>
 		<script src="layui/layui.all.js"></script>
-		<script src="js/login.js?v=b9172687a1"></script>
+		<script src="js/login.js?v=24ab8f32aa"></script>
 	</head>
 
 	<body>
@@ -26,33 +26,35 @@
 				<div class="login-content-box">
 					<div class="illustration-box"></div>
 					<div class="login-opera-box">
-						<div class="title">排污用电监测系统</div>
-						<div class="login-list-box">
-							<div class="login-list">
-								<div class="icon icon-account"></div>
-								<div class="login-input-box">
-									<input type="text" value="" name="" id="account" autocomplete="off" placeholder="请输入用户名" oninput="bindLoginBtn();" />
+						<div class="login-opera-inner-box">
+							<div class="title">排污用电监测系统</div>
+							<div class="login-list-box">
+								<div class="login-list">
+									<div class="icon icon-account"></div>
+									<div class="login-input-box">
+										<input type="text" value="" name="" id="account" autocomplete="off" placeholder="请输入用户名" oninput="bindLoginBtn();" />
+									</div>
+								</div>
+								<div class="login-list">
+									<div class="icon icon-password"></div>
+									<div class="login-input-box">
+										<input type="password" value="" name="" id="password" autocomplete="off" placeholder="请输入登录密码" oninput="bindLoginBtn();" />
+									</div>
+								</div>
+								<div class="login-list">
+									<div class="icon icon-token"></div>
+									<div class="login-input-box login-input-code-box f_l">
+										<input type="text" value="" name="" id="inputCode" placeholder="请输入验证码" oninput="bindLoginBtn();" />
+									</div>
+									<div class="login-input-code-text-box f_r" id="checkCode" onclick="createCode()"></div>
 								</div>
 							</div>
-							<div class="login-list">
-								<div class="icon icon-password"></div>
-								<div class="login-input-box">
-									<input type="password" value="" name="" id="password" autocomplete="off" placeholder="请输入登录密码" oninput="bindLoginBtn();" />
-								</div>
-							</div>
-							<div class="login-list">
-								<div class="icon icon-token"></div>
-								<div class="login-input-box login-inputCode-box f_l">
-									<input type="text" value="" name="" id="inputCode" placeholder="请输入验证码" oninput="bindLoginBtn();" />
-								</div>
-								<div class="login-inputCode-text-box f_r" id="checkCode" onclick="createCode()"></div>
-							</div>
+							<div class="login-btn login-disabled-btn" id="login_btn">登录</div>
+							<div class="copyright">copyright &copy; 河南绿博仕智能环保科技有限公司</div>
 						</div>
-						<div class="login-btn login-disabled-btn" id="login_btn">登录</div>
 					</div>
 				</div>
 			</div>
-			<div class="copyright">copyright &copy; 河南绿博仕智能环保科技有限公司</div>
 		</div>
 	</body>
 	<script>

@@ -1,12 +1,11 @@
 //登录返回的accessToken令牌
-var accessToken = window.localStorage.getItem("accessToken");
 var accountInfo = window.localStorage.getItem("accountInfo") ? JSON.parse(window.localStorage.getItem("accountInfo")) : getQueryString("accountInfo");
 
 //	数字正则表达式
 var regular_num = /^[0-9.-]*$/;
 
 //	手机正则表达式
-var regular_phone = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
+var regular_telephone = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
 
 //	密码号正则表达式
 var regular_password = /^[A-Za-z0-9]{4,16}$/;
@@ -23,42 +22,123 @@ var regular_roomAddress = /^[0-9-]{7,11}$/;
 //	code正则表达式
 var regular_code = /^[A-Za-z0-9]*$/;
 
-$(function() {
-	if($(".kjy-box").hasClass("kjy-flex-box")) {
-		var searchTextChild = $(".search-text").find(".search");
-		var searchTextChildHeight = searchTextChild.outerHeight(true);
-		var searchTimeChild = $(".search-time").find(".search");
-		var searchTimeChildHeight = searchTimeChild.outerHeight(true);
-		var searchTextChildRow = Math.ceil(searchTextChild.length / 4);
-		var searchTimeChildRow = Math.ceil(searchTimeChild.length / 3);
-		$(".search-text").height(searchTextChildRow * searchTextChildHeight);
-		$(".search-time").height(searchTimeChildRow * searchTimeChildHeight);
-	}
-})
+var setData, maskArray = [];
+
+//初始化vue
+var param = {
+	menuList: [],
+	selected: "",
+	path: "",
+	parentData: "",
+	dataList: [],
+	contentList: [],
+	allIsActive: false,
+	pageList: [],
+	totalPage: 0,
+	pageSize: 0,
+	pageNo: 0,
+	count: 0,
+	dataLength: 0,
+	accountInfo: accountInfo
+}
 
 //刷新页面
 function reloadPage() {
 	window.location.reload();
 }
 
-var setData, ifameIndex;
-
-//初始化vue
-var param = {
-	parentData: "",
-	dataList: [],
-	allisActive: false,
-	totalPage: 0,
-	pageNo: 0,
-	pageSize: 0,
-	count: 0,
-	dataLength: 0,
-	su: ""
+//加载VUE
+function loadVue(el, param) {
+	setData = new Vue({
+		el: el,
+		data: param,
+		filters: {
+			resetTime: function(time, flag) {
+				if(time == null) {
+					return "";
+				} else {
+					return resetTime(time, flag);
+				}
+			}
+		}
+	})
 }
 
 function nextTick(callback) {
 	Vue.nextTick(function() {
 		callback();
+	});
+}
+
+//公共请求方法
+//method 请求方式
+//requestUrl 请求地址
+//isPage 请求是否设置翻页
+//param 参数
+//okCallback 成功回调
+//noCallback 失败回调
+function request(method, requestUrl, param, showLoading, okCallback, noCallback) {
+	if(param.pageNo) {
+		var isPage = true;
+	} else {
+		var isPage = false;
+	}
+	if(method == "POST") {
+		if(accountInfo) {
+			param.accessToken = accountInfo.accessToken;
+		}
+		param = JSON.stringify(param);
+	}
+	var timestamp = new Date().getTime();
+	if(showLoading == true) {
+		var loadding = layer.load(1, {
+			shade: [0.2, '#fafafa'],
+			area: ['37px', '37px']
+		});
+	}
+	if(requestUrl.indexOf("?") > 0) {
+		requestUrl = requestUrl + "&timestamp=" + timestamp;
+	} else {
+		requestUrl = requestUrl + "?timestamp=" + timestamp;
+	}
+	$.ajax({
+		type: method,
+		url: url + requestUrl,
+		contentType: "application/json;charset=UTF-8",
+		data: param,
+		dataType: 'json',
+		success: function(res) {
+			if(res.code == "0000") {
+				okCallback(res);
+			} else if(res.code == "0007" || res.code == "0006") {
+				window.localStorage.setItem("accountInfo", "");
+				top.location.href = host + "/greendoctor/login.html";
+			} else if(res.code == "0008") {
+				layer.msg("服务器内部错误");
+			} else if(res.code == "0400") {
+				layer.msg("服务达到上限，如想创建请联系闪向");
+			} else {
+				noCallback(res);
+			}
+			if(isPage == true) {
+				var data = res.data;
+				idList = [];
+				setData.dataLength = data.dataList.length;
+				setData.pageNo = data.pageNo;
+				setData.pageSize = data.pageSize;
+				setData.totalPage = data.totalPage;
+				setData.count = data.count;
+				resetPage();
+			}
+			if(showLoading == true) {
+				layer.closeAll('loading');
+			}
+		},
+		error: function(res) {
+			if(res.status == '401' || res.status == '402' || res.status == '403' || res.status == '404' || res.status == '405' || res.status == '407' || res.status == '413' || res.status == '414' || res.status == '415' || res.status == '500' || res.status == '502' || res.status == '503' || res.status == '504' || res.status == '505') {
+				window.location.href = host + '/greendoctor/part/err.html';
+			}
+		}
 	});
 }
 
@@ -79,7 +159,7 @@ Date.prototype.Format = function(fmt) {
 	return fmt;
 }
 
-//判断时间是否为字符串
+//格式化字符串时间
 function judeDate(date) {
 	if(typeof(date) == "string") {
 		date = date.substring(0, 19);
@@ -89,7 +169,23 @@ function judeDate(date) {
 	return date;
 }
 
-//转换yy-mm-dd hh-mm-ss，0精确到秒，1精确到分，2精确到时，3精确到日，4精确到月，5精确到年
+//重置特殊时间格式
+function resetSpecialTime(date, flag) {   
+	var array = date.split("T"); 
+	var dateArray = array[0].split('-');  
+	var year = dateArray[0];
+	var month = dateArray[1];
+	var day = dateArray[2];
+	var timeArray = array[1].split('.')[0].split(':');
+	var hh = timeArray[0]; 
+	var mm = timeArray[1];
+	var ss = timeArray[2]; 
+	if(flag == 0) {
+		return year + "-" + month + "-" + day + " " + hh + ":" + mm + ":" + ss; 
+	}
+}
+
+//重置时间
 function resetTime(date, flag) {
 	if(date) {
 		date = judeDate(date);
@@ -133,12 +229,14 @@ function resetTime(date, flag) {
 	}
 }
 
+//重置时间戳
 function resetTimeStamp(date) {
 	date = judeDate(date);
 	date = new Date(date).getTime();
 	return date;
 }
 
+//重置结束时间
 function resetEndTime(newDate, type) {
 	newDate = resetTimeStamp(newDate);
 	var date;
@@ -150,6 +248,7 @@ function resetEndTime(newDate, type) {
 	return date;
 }
 
+//获取过去日期
 function getAppointDate(number, type) {
 	var dateArray = [],
 		curreDate = new Date().getTime(),
@@ -166,135 +265,35 @@ function getAppointDate(number, type) {
 	return dateArray
 }
 
-//加载VUE
-function loadVue(el, param) {
-	setData = new Vue({
-		el: el,
-		data: param,
-		filters: {
-			resetTime: function(time, flag) {
-				if(time == null) {
-					return "";
-				} else {
-					return resetTime(time, flag);
-				}
-			}
-		}
-	})
-}
-
-//公共请求方法
-//method 请求方式
-//requestUrl 请求地址
-//isPage 请求是否设置翻页
-//param 参数
-//okCallback 成功回调
-//noCallback 失败回调
-function request(method, requestUrl, param, showLoading, okCallback, noCallback) {
-	if(param.pageNo) {
-		var isPage = true;
-	} else {
-		var isPage = false;
-	}
-	if(method == "POST") {
-		param.accessToken = accessToken;
-		param = JSON.stringify(param);
-	}
-	var timestamp = new Date().getTime();
-	if(showLoading == true) {
-		var loadding = layer.load(1, {
-			shade: [0.2, '#fafafa'],
-			area: ['37px', '37px']
-		});
-	}
-	if(requestUrl.indexOf("?") > 0) {
-		requestUrl = requestUrl + "&timestamp=" + timestamp;
-	} else {
-		requestUrl = requestUrl + "?timestamp=" + timestamp;
-	}
-	$.ajax({
-		type: method,
-		url: url + requestUrl,
-		contentType: "application/json;charset=UTF-8",
-		data: param,
-		dataType: 'json',
-		success: function(res) {
-			if(res.code == "0000") {
-				okCallback(res);
-			} else if(res.code == "0007" || res.code == "0006") {
-				window.localStorage.setItem("accessToken", "");
-				top.location.href = host + "/greendoctor/login.html";
-			} else if(res.code == "0008") {
-				layer.msg("服务器内部错误");
-			} else if(res.code == "0400") {
-				layer.msg("服务达到上限，如想创建请联系闪向");
-			} else {
-				noCallback(res);
-			}
-			if(isPage == true) {
-				var data = res.data;
-				idList = [];
-				setData.dataLength = data.dataList.length;
-				setData.pageNo = data.pageNo;
-				setData.pageSize = data.pageSize;
-				setData.totalPage = data.totalPage;
-				setData.count = data.count;
-			}
-			if(showLoading == true) {
-				layer.closeAll('loading');
-			}
-		},
-		error: function(res) {
-			if(res.status == '401' || res.status == '402' || res.status == '403' || res.status == '404' || res.status == '405' || res.status == '407' || res.status == '413' || res.status == '414' || res.status == '415' || res.status == '500' || res.status == '502' || res.status == '503' || res.status == '504' || res.status == '505') {
-				window.location.href = host + '/greendoctor/part/err.html';
-			}
-		}
-	});
-}
-
-//加载全屏模板
+//加载模板
 function loadPart(url, dom, callback) {
 	var timestamp = new Date().getTime();
-	$.ajax({
-		type: "GET",
-		url: url + '.html?timestamp=' + timestamp,
-		dataType: "html",
-		contentType: "application/json",
-		success: function(res) {
-			$(dom).append(res);
-			if(callback) {
+	url = host + "/greendoctor" + url + ".html?timestamp=" + timestamp;
+	if($(dom).children().length == 0) {
+		$.ajax({
+			type: "GET",
+			url: url,
+			dataType: "html",
+			contentType: "application/json",
+			success: function(res) {
+				$(dom).append(res);
 				callback(res);
 			}
-		}
-	});
+		});
+	}
 }
 
-function loadPage(type) {
-	if(type == 0) {
-		var pageUrl = "../part/page";
-	} else if(type == 1) {
-		var pageUrl = "../part/smallPage";
-	}
-	loadPart(pageUrl, ".page-box");
-}
-
-//判断是新建，编辑，查看，新建0，编辑1，查看2
-function judeEdit(flag, layerDom) {
-	if(flag == 0 || flag == 1) {
-		layerDom.find(".mask-btn-box").show();
-	} else if(flag == 2) {
-		layerDom.find("input").attr("disabled", "disabled");
-		layerDom.find("select").attr("disabled", "disabled");
-		layerDom.find("textarea").attr("disabled", "disabled");
-		layerDom.find(".mask-btn-box").hide();
-		layerDom.find(".main-mask").removeClass("main-mask-bottom");
-	}
+//加载翻页
+function loadPage() {
+	loadPart("/part/page", ".page-box", function(res) {
+		loadVue(".v-page", param);
+	})
 }
 
 //判断token过期跳转登录
 function judeToken() {
-	var accessToken = window.localStorage.getItem("accessToken");
-	if(accessToken == "" || accessToken == null) {
+	var accountInfo = window.localStorage.getItem("accountInfo");
+	if(accountInfo == "" || accountInfo == null) {
 		quit();
 		return false;
 	}
@@ -306,14 +305,14 @@ var idList = [];
 
 //全选
 function selectAllData() {
-	if(setData.allisActive == true) {
-		setData.allisActive = false;
+	if(setData.allIsActive == true) {
+		setData.allIsActive = false;
 		for(var i = 0; i < setData.dataList.length; i++) {
 			setData.dataList[i].isActive = false;
 		}
 		idList = [];
 	} else {
-		setData.allisActive = true;
+		setData.allIsActive = true;
 		for(var i = 0; i < setData.dataList.length; i++) {
 			if(setData.dataList[i].isActive == false) {
 				setData.dataList[i].isActive = true;
@@ -334,121 +333,106 @@ function selectOneData(obj) {
 	}
 	for(var i = 0; i < setData.dataList.length; i++) {
 		if(setData.dataList[i].isActive == true) {
-			setData.allisActive = true;
+			setData.allIsActive = true;
 		} else {
-			setData.allisActive = false;
+			setData.allIsActive = false;
 			break;
 		}
 	}
 }
 
-//勾选checkbox选项
-function setCheckBox(obj) {
-	obj.checked = !obj.checked;
-}
-
 //弹框单选
-var sInfo = "";
+var dataInfo = "";
 
 function tabData(obj) {
-	for(var i = 0; i < setData.dataList.length; i++) {
-		setData.dataList[i].isActive = false;
-	}
-	if(obj.isActive == true) {
-		obj.isActive = false;
-		sInfo = "";
-	} else {
-		obj.isActive = true;
-		sInfo = obj;
-	}
-	if(window.setParentData) {
-		setParentData();
-	} else if(window.setOwnData) {
-		setOwnData();
-	}
+	var dataList = setData.dataList;
+	dataInfo = obj;
+	resetDataInfo(dataList);
 }
 
-//删除数据
-function delData(confirmtext, callback) {
-	if(idList.length == 0) {
-		layer.msg("请选择要删除的数据");
-	} else {
-		layer.confirm(confirmtext, {
-			btn: ['确定', '取消']
-		}, function() {
-			var param = {
-				idList: idList
-			}
-			callback(param);
-		}, function() {
-
-		});
-	}
-}
-
-//删除数据
-function delOneData(id, confirmtext, type, callback) {
-	layer.confirm(confirmtext, {
-		btn: ['确定', '取消']
-	}, function() {
-		if(type == 0) {
-			idList.push(id);
-			var param = {
-				idList: idList
-			}
-		} else {
-			var param = {
-				id: id
-			}
+//重置dataInfo
+function resetDataInfo(dataList) {
+	for(var i = 0; i < dataList.length; i++) {
+		dataList[i].isActive = false;
+		if(dataInfo.id == dataList[i].id) {
+			dataList[i].isActive = true;
 		}
-		callback(param);
-	}, function() {
+	}
+}
 
-	});
+//切换触发状态
+function switchActive(obj) {
+	obj.isActive = !obj.isActive;
 }
 
 //弹出框展示
 function openMask(url, title, area, callback) {
 	var timestamp = new Date().getTime();
+	var content = host + "/greendoctor" + url + ".html?timestamp=" + timestamp;
 	layer.open({
 		type: 2,
-		title: [title, 'font-weight:bold;font-size:16px;'],
+		title: [title, 'background-color:#fff;font-size:12px;'],
 		shadeClose: true,
 		shade: 0.3,
 		shift: 1,
 		area: area,
-		content: url + ".html?timestamp=" + timestamp,
+		content: [content, "no"],
 		success: function(layero, index) {
 			var layerDom = layer.getChildFrame('body', index);
-			var layerIframe = window[layero.find('iframe')[0]['name']];
-			ifameIndex = index;
+			var layerIframe = layero.find('iframe')[0].contentWindow;
+			var indexList = [];
+			for(var i = 0; i < maskArray.length; i++) {
+				indexList.push(maskArray[i].index);
+			}
+			if($.inArray(index, indexList) == -1) {
+				var obj = {
+					index: index,
+					layerIframe: layerIframe
+				}
+				maskArray.push(obj);
+			}
 			if(callback) {
 				callback(layerDom, layerIframe);
 			}
 		},
 		end: function() {
-			if(window.loadData) {
-				loadData();
-			}
+			maskArray.pop();
 		}
 	});
 }
 
-//置空新建
-function resetValue() {
-	$(".main-mask input").val("");
-	$(".main-mask select").val("");
-	$(".main-mask textarea").val("");
+//获取弹出框内容
+function getMaskData(callback) {
+	var index = maskArray.length - 2;
+	var layerDom = layer.getChildFrame('body', maskArray[index].index);
+	var layerIframe = maskArray[index].layerIframe;
+	if(callback) {
+		callback(layerDom, layerIframe);
+	}
+}
+
+//关闭弹框
+function closeMask() {
+	parent.layer.close(parent.maskArray[parent.maskArray.length - 1].index);
+}
+
+//打开信息框
+function openConfirm(confirmText, callback) {
+	layer.confirm(confirmText, {
+		title: false,
+		closeBtn: false,
+		btn: ['确定', '取消'],
+		skin: "layui-layer-dialog-confirm"
+	}, function() {
+		callback();
+	}, function() {
+
+	});
 }
 
 //退出
 function quit() {
-	var param = {};
-	//	request("POST", "/account/administrator/logout.do", param, true, function(res) {
-	//		window.location.href = "login.html?pmcId=" + accountInfo.pmcId;
-	//	}, function(res) {
-	//		layer.msg("退出失败");
-	//	})
+	window.localStorage.setItem("accountInfo", "");
 	window.location.href = "login.html";
 }
 
@@ -462,10 +446,60 @@ function getQueryString(key) {
 //翻页
 var pageNo = 1;
 
+function resetPage() {
+	var pageList = [];
+	var totalPage = setData.totalPage;
+	var pageNo = setData.pageNo;
+	for(var i = 1; i <= totalPage; i++) {
+		if(pageNo < 4) {
+			if(i > pageNo + 1 && i < totalPage) {
+				if($.inArray("", pageList) == -1) {
+					pageList.push("");
+				}
+			} else {
+				pageList.push(i);
+			}
+		} else if(pageNo > totalPage - 3) {
+			if(i < pageNo - 1 && i > 1) {
+				if($.inArray("", pageList) == -1) {
+					pageList.push("");
+				}
+			} else {
+				pageList.push(i);
+			}
+		} else {
+			if(i == 1 || i == totalPage || (i >= pageNo - 1 && i <= pageNo + 1)) {
+				pageList.push(i);
+			} else {
+				if(i < pageNo - 1) {
+					if($.inArray("", pageList) == -1) {
+						pageList.push("");
+					}
+				} else if(i > pageNo + 1) {
+					if($.inArray("", pageList, 3) == -1) {
+						pageList.push("");
+					}
+				}
+			}
+		}
+	}
+	setData.pageList = pageList;
+}
+
 //检索
-function sreach() {
+function search() {
 	pageNo = 1;
 	loadData();
+}
+
+//检索
+function search() {
+	pageNo = 1;
+	if(setData.parentData) {
+		loadData(setData.parentData);
+	} else {
+		loadData();
+	}
 }
 
 //首页
@@ -475,7 +509,11 @@ function firstPage() {
 		layer.msg("页数已到最小");
 		return false;
 	}
-	loadData();
+	if(setData.parentData) {
+		loadData(setData.parentData);
+	} else {
+		loadData();
+	}
 }
 
 //末页
@@ -485,19 +523,11 @@ function lastPage() {
 		layer.msg("页数已到最大");
 		return false;
 	}
-	loadData();
-}
-
-//下一页
-function nextPage() {
-	pageNo = setData.pageNo;
-	pageNo++;
-	if(pageNo > setData.totalPage) {
-		pageNo = setData.totalPage;
-		layer.msg("页数已到最大");
-		return false;
+	if(setData.parentData) {
+		loadData(setData.parentData);
+	} else {
+		loadData();
 	}
-	loadData();
 }
 
 //上一页
@@ -509,65 +539,68 @@ function beforePage() {
 		layer.msg("页数已到最小");
 		return false;
 	}
-	loadData();
+	if(setData.parentData) {
+		loadData(setData.parentData);
+	} else {
+		loadData();
+	}
+}
+
+//下一页
+function nextPage() {
+	pageNo = setData.pageNo;
+	pageNo++;
+	if(pageNo > setData.totalPage) {
+		pageNo = setData.totalPage;
+		layer.msg("页数已到最大");
+		return false;
+	}
+	if(setData.parentData) {
+		loadData(setData.parentData);
+	} else {
+		loadData();
+	}
 }
 
 //跳转页面
-function jumpPage() {
-	pageNo = $(".page .page-input input").val();
-	if(pageNo == "") {
-		layer.msg("请输入页数");
-		return false;
+function jumpPage(jumpPageNo) {
+	pageNo = jumpPageNo;
+	if(setData.parentData) {
+		loadData(setData.parentData);
+	} else {
+		loadData();
 	}
-	if(pageNo < 1) {
-		layer.msg("页数不能小于1");
-		return false;
-	}
-	if(pageNo == 1) {
-		layer.msg("页数已到最小");
-		return false;
-	}
-	if(pageNo > setData.totalPage) {
-		layer.msg("页数不能大于总页数");
-		return false;
-	}
-	loadData();
-}
-
-//点击轮播点跳转页面
-function clickJumpPage(pageNumber) {
-	pageNo = pageNumber;
-	loadData();
 }
 
 //时间控件
-function setTime(dom, type) {
+function setTime(dom, type, format) {
 	layui.use('laydate', function() {
 		var laydate = layui.laydate;
-		laydate.render({
-			elem: dom,
-			type: type,
-			trigger: 'click',
+		lay(dom).each(function() {
+			laydate.render({
+				elem: this,
+				type: type,
+				trigger: 'click',
+				format: format
+			});
 		});
 	});
 }
 
-function setSlider(dom, step, callback) {
-	layui.use('slider', function() {
-		var $ = layui.$,
-			slider = layui.slider;
-		slider.render({
-			elem: dom,
-			step: step,
-			showstep: true,
-			theme: '#333',
-			change: function(res) {
-				if(callback) {
-					callback(res);
-				}
-			}
+//批量设置时间控件
+function setTimeList(dom, type, format) {
+	layui.use('laydate', function() {
+		var laydate = layui.laydate;
+		lay(dom).each(function() {
+			laydate.render({
+				elem: this,
+				type: type,
+				trigger: 'click',
+				format: format,
+				theme: '#001e37'
+			});
 		});
-	})
+	});
 }
 
 //导出
@@ -647,9 +680,9 @@ function print(dom) {
 	$.print("#" + dom);
 }
 
-//删除范围
-function delRange(i) {
-	setData.dataList.splice(i--, 1);
+//删除内容
+function delContent(i) {
+	setData.contentList.splice(i--, 1);
 }
 
 //排序
@@ -696,6 +729,7 @@ function seamlessRolling(dom) {
 		if(top <= (parentHeight - height)) {
 			top = 0;
 			dom.css("top", "0");
+			return false;
 		}
 		dom.stop().animate({
 			top: top - H
@@ -738,17 +772,17 @@ function bindWindowChange(callback) {
 	$(window).resize(function() {
 		callback();
 	})
-	$(window).ready(function() {
-		callback();
-	})
 }
 
+//根据索引获取数组
 function getIndexArray(dataList, index, slotType) {
 	var resArray = [];
 	for(var i = 0; i < dataList.length; i++) {
 		if(slotType == true) {
+			//正序
 			resArray.push(dataList[i][index]);
 		} else {
+			//倒序
 			resArray.unshift(dataList[i][index]);
 		}
 	}
@@ -799,92 +833,92 @@ function checkInput() {
 	}
 
 	//	长度不超过6
-	for(var i = 0; i < $(".len6").length; i++) {
-		if($(".len6").eq(i).val().length > 6) {
-			var required = $(".len6").eq(i).parent().siblings(".mask-list-name").find(".text").text();
+	for(var i = 0; i < $(".length-6").length; i++) {
+		if($(".length-6").eq(i).val().length > 6) {
+			var required = $(".length-6").eq(i).parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + "长度不能超过6");
 			return false;
 		}
 	}
 
 	//	长度不超过30
-	for(var i = 0; i < $(".len30").length; i++) {
-		if($(".len30").eq(i).val().length > 30) {
-			var required = $(".len30").eq(i).parent().siblings(".mask-list-name").find(".text").text();
+	for(var i = 0; i < $(".length-30").length; i++) {
+		if($(".length-30").eq(i).val().length > 30) {
+			var required = $(".length-30").eq(i).parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + "长度不能超过30");
 			return false;
 		}
 	}
 
 	//	长度不超过200
-	for(var i = 0; i < $(".len200").length; i++) {
-		if($(".len200").eq(i).val().length > 200) {
-			var required = $(".len200").eq(i).parent().siblings(".mask-list-name").find(".text").text();
+	for(var i = 0; i < $(".length-200").length; i++) {
+		if($(".length-200").eq(i).val().length > 200) {
+			var required = $(".length-200").eq(i).parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + "长度不能超过200");
 			return false;
 		}
 	}
 
 	//	密码号为6位
-	for(var i = 0; i < $(".pwd6").length; i++) {
-		if($(".pwd6").eq(i).val().length != 6) {
-			var required = $(".pwd6").eq(i).parent().siblings(".mask-list-name").find(".text").text();
+	for(var i = 0; i < $(".length-equal-6").length; i++) {
+		if($(".length-equal-6").eq(i).val().length != 6) {
+			var required = $(".length-equal-6").eq(i).parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + " 长度为6位 请核对");
 			return false;
 		}
 	}
 
-	for(var i = 0; i < $(".num").length; i++) {
-		if(!regular_num.test($(".num").eq(i).val())) {
-			var required = $(".num").eq(i).parent().siblings(".mask-list-name").find(".text").text();
+	for(var i = 0; i < $(".regular-num").length; i++) {
+		if(!regular_num.test($(".regular-num").eq(i).val())) {
+			var required = $(".regular-num").eq(i).parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + " 格式错误 请核对");
 			return false;
 		}
 	}
 
-	if($(".phone").val() != "" && $(".phone").val() != undefined) {
-		if(!regular_phone.test($(".phone").val())) {
-			var required = $(".phone").parent().siblings(".mask-list-name").find(".text").text();
+	if($(".regular-telephone").val() != "" && $(".regular-telephone").val() != undefined) {
+		if(!regular_telephone.test($(".regular-telephone").val())) {
+			var required = $(".regular-telephone").parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + " 格式错误 请核对");
 			return false;
 		}
 	}
 
-	for(var i = 0; i < $(".password").length; i++) {
-		if(!regular_password.test($(".password").eq(i).val())) {
-			var required = $(".password").eq(i).parent().siblings(".mask-list-name").find(".text").text();
+	for(var i = 0; i < $(".regular-password").length; i++) {
+		if(!regular_password.test($(".regular-password").eq(i).val())) {
+			var required = $(".regular-password").eq(i).parent().siblings(".mask-list-name").find(".text").text();
+			layer.msg(required + " 格式为4-16位数字或字母，区分大小写");
+			return false;
+		}
+	}
+
+	if($(".regular-email").val() != "" && $(".regular-email").val() != undefined) {
+		if(!regular_email.test($(".regular-email").val())) {
+			var required = $(".regular-email").parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + " 格式错误 请核对");
 			return false;
 		}
 	}
 
-	if($(".email").val() != "" && $(".email").val() != undefined) {
-		if(!regular_email.test($(".email").val())) {
-			var required = $(".email").parent().siblings(".mask-list-name").find(".text").text();
+	if($(".regular-id-number").val() != "" && $(".regular-id-number").val() != undefined) {
+		if(!regular_idNumber.test($(".regular-id-number").val())) {
+			var required = $(".regular-id-number").parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + " 格式错误 请核对");
 			return false;
 		}
 	}
 
-	if($(".id-number").val() != "" && $(".id-number").val() != undefined) {
-		if(!regular_idNumber.test($(".id-number").val())) {
-			var required = $(".id-number").parent().siblings(".mask-list-name").find(".text").text();
+	if($(".regular-room-address").val() != "" && $(".regular-room-address").val() != undefined) {
+		if(!regular_roomAddress.test($(".regular-room-address").val())) {
+			var required = $(".regular-room-address").parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + " 格式错误 请核对");
 			return false;
 		}
 	}
 
-	if($(".room-address").val() != "" && $(".room-address").val() != undefined) {
-		if(!regular_roomAddress.test($(".room-address").val())) {
-			var required = $(".room-address").parent().siblings(".mask-list-name").find(".text").text();
-			layer.msg(required + " 格式错误 请核对");
-			return false;
-		}
-	}
-
-	if($(".regular-code").val() != "" && $(".regular-code").val() != undefined) {
-		if(!regular_code.test($(".regular-code").val())) {
-			var required = $(".regular-code").parent().siblings(".mask-list-name").find(".text").text();
+	for(var i = 0; i < $(".regular-code").length; i++) {
+		if(!regular_code.test($(".regular-code").eq(i).val())) {
+			var required = $(".regular-code").eq(i).parent().siblings(".mask-list-name").find(".text").text();
 			layer.msg(required + " 格式错误 请核对");
 			return false;
 		}

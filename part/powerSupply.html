@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../layui/css/layui.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="mask-box">
+			<div class="mask-inner-box">
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">线路名称：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="lineName" value="" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">供电电压：</span></div>
+					<div class="mask-list-value">
+						<select name="" id="supplyVoltage" class="required">
+							<option value="">供电电压</option>
+							<option value="10KV">10KV</option>
+							<option value="35KV">35KV</option>
+							<option value="380V">380V</option>
+							<option value="110KV">110KV</option>
+							<option value="66KV">66KV</option>
+							<option value="20KV">20KV</option>
+							<option value="6V">6V</option>
+							<option value="220KV">220KV</option>
+							<option value="220V">220V</option>
+							<option value="57.7V">57.7V</option>
+							<option value="100V">100V</option>
+						</select>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">受电容量：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="supplyCapacity" value="" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">电源性质：</span></div>
+					<div class="mask-list-value">
+						<select name="" id="supplyProperty" class="required">
+							<option value="">电源性质</option>
+							<option value="1">主供</option>
+							<option value="0">备供</option>
+						</select>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="text">备注：</span></div>
+					<div class="mask-list-value">
+						<textarea name="" rows="" cols="" id="comment"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.companyInfo = {};
+		loadVue(".v-dom", param);
+		//编辑
+		function save() {
+			var checkI = checkInput();
+			if(checkI == true) {
+				var parentData = setData.parentData;
+				var companyInfo = setData.companyInfo;
+				var param = {
+					lineName: $("#lineName").val(),
+					supplyVoltage: $("#supplyVoltage").val(),
+					supplyCapacity: $("#supplyCapacity").val(),
+					supplyProperty: $("#supplyProperty").val(),
+					comment: $("#comment").val(),
+					companyId: companyInfo.id,
+					companyName: companyInfo.name
+				};
+				if(parentData) {
+					param.id = parentData.id;
+				}
+				request('POST', '/company/powerSupply/saveOrUpdate.do', param, true, function(res) {
+					closeMask();
+					parent.layer.msg("操作成功");
+					parent.loadData();
+				}, function(res) {
+					layer.msg('操作失败，请检查网络或重试');
+				})
+			}
+		}
+	</script>
+
+</html>

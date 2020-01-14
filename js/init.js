@@ -1,8 +1,6 @@
 var windowWidth, windowHeight;
 $(function() {
-	param.timestamp = "";
 	param.currentTime = "";
-	param.accountName = "管理员";
 	param.menuSwitch = true;
 	loadVue(".v-dom", param);
 	loadData();
@@ -46,7 +44,7 @@ function loadData() {
 	getJson(0, function(res) {
 		var dataList = res;
 		setData.dataList = dataList;
-		setData.timestamp = timestamp;
+		setData.path = host + "/greendoctor/index.html?timestamp=" + timestamp;
 		nextTick(function() {
 			setnav();
 		})
@@ -56,11 +54,11 @@ function loadData() {
 //加载当前时间
 function loadTime() {
 	var loadTime = setInterval(function() {
-//		var checkI = judeToken();
-//		if(checkI == true) {
+		var checkI = judeToken();
+		if(checkI == true) {
 			var date = new Date();
 			setData.currentTime = resetTime(date, 0);
-//		}
+		}
 	}, 1000);
 }
 

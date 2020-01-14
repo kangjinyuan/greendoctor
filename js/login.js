@@ -37,14 +37,6 @@ function bindLoginBtn() {
 function login() {
 	var timestamp = new Date().getTime();
 	var inputCode = $("#inputCode").val().toUpperCase();
-	if($('#account').val() != "admin") {
-		layer.msg("用户名输入错误！");
-		return false;
-	}
-	if($('#password').val() != "admin") {
-		layer.msg("登录密码输入错误！");
-		return false;
-	}
 	if(inputCode != code) {
 		layer.msg("验证码输入错误！");
 		return false;
@@ -53,17 +45,15 @@ function login() {
 		account: $('#account').val(),
 		password: $("#password").val()
 	}
-	//	request('POST', '/account/administrator/login.do', param, true, function(res) {
-	//		window.localStorage.setItem("accessToken", res.accessToken);
-	//		window.localStorage.setItem("accountInfo", JSON.stringify(res.data));
-	//		window.location.href = "main.html?timestamp=" + timestamp;
-	//	}, function(res) {
-	//		if(res.code == "0005") {
-	//			layer.msg("您的用户名或密码不正确");
-	//		} else {
-	//			layer.msg("登录失败，请检查网络或重试");
-	//		}
-	//	})
-	window.location.href = "main.html?timestamp=" + timestamp;
+	request('POST', '/account/manager/login.do', param, true, function(res) {
+		window.localStorage.setItem("accountInfo", JSON.stringify(res.data));
+		window.location.href = "main.html?timestamp=" + timestamp;
+	}, function(res) {
+		if(res.code == "0005") {
+			layer.msg("您的用户名或密码不正确");
+		} else {
+			layer.msg("登录失败，请检查网络或重试");
+		}
+	})
 
 }

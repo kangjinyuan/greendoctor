@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../layui/css/layui.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="mask-box v-dom" v-cloak>
+			<div class="mask-inner-box">
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">数采仪名称：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="name" value="" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">所属企业：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="companyName" disabled="disabled" class="required" />
+						<input type="hidden" name="" value="" id="companyId" class="required" />
+					</div>
+					<div class="btn-box" v-if="showSelectCompanyBtn">
+						<div class="btn-inner-box">
+							<div class="btn" onclick="selectCompany();">选择</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.showSelectCompanyBtn = false;
+		loadVue(".v-dom", param);
+
+		function selectCompany() {
+			parent.openMask("/part/selectCompany", "所属企业", ["800px", "500px"], function(layerDom, layerIframe) {
+				var dataInfo = {
+					id: $("#companyId").val(),
+					name: $("#companyName").val()
+				}
+				layerIframe.dataInfo = dataInfo;
+				layerIframe.loadData();
+			});
+		}
+
+		//编辑
+		function save() {
+			var checkI = checkInput();
+			if(checkI == true) {
+				var parentData = setData.parentData;
+				var param = {
+					name: $("#name").val(),
+					companyId: $("#companyId").val(),
+					companyName: $("#companyName").val()
+				};
+				if(parentData) {
+					param.id = parentData.id;
+				}
+				request('POST', '/company/gateway/saveOrUpdate.do', param, true, function(res) {
+					closeMask();
+					parent.layer.msg("操作成功");
+					parent.loadData();
+				}, function(res) {
+					layer.msg('操作失败，请检查网络或重试');
+				})
+			}
+		}
+	</script>
+
+</html>

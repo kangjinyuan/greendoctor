@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../layui/css/layui.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="mask-box v-dom" v-cloak>
+			<div class="mask-inner-box">
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">监测点名称：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="name" value="" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">监测点类别：</span></div>
+					<div class="mask-list-value">
+						<select name="" id="monitorType" class="required" onchange="selectMonitorType(this);">
+							<option value="">监测点类别</option>
+							<option value="0">总表</option>
+							<option value="1">设施</option>
+						</select>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">所属企业：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="companyName" disabled="disabled" class="required" />
+						<input type="hidden" name="" value="" id="companyId" class="required" />
+					</div>
+					<div class="btn-box" v-if="showSelectCompanyBtn">
+						<div class="btn-inner-box">
+							<div class="btn" onclick="selectCompany();">选择</div>
+						</div>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">所属数采仪：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="gatewayStationName" disabled="disabled" class="required" />
+						<input type="hidden" name="" value="" id="gatewayStationId" class="required" />
+					</div>
+					<div class="btn-box" v-if="showSelectGatewayBtn">
+						<div class="btn-inner-box">
+							<div class="btn" onclick="selectGateway();">选择</div>
+						</div>
+					</div>
+				</div>
+				<div class="mask-list" v-if="monitorType == '1'">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">所属设施：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" value="" id="facilityName" disabled="disabled" class="required" />
+						<input type="hidden" name="" value="" id="facilityId" class="required" />
+					</div>
+					<div class="btn-box">
+						<div class="btn-inner-box">
+							<div class="btn" onclick="selectFacility();">选择</div>
+						</div>
+					</div>
+				</div>
+				<div class="mask-row-list" v-if="monitorType == '0'">
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">输入线路：</span></div>
+						<div class="mask-list-value">
+							<input type="" name="" id="lineName" value="" class="required" />
+						</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">计量方式：</span></div>
+						<div class="mask-list-value">
+							<select name="" id="measureStyle" class="required">
+								<option value="">计量方式</option>
+								<option value="0">高供高计</option>
+								<option value="1">高供低计</option>
+								<option value="2">低供低计</option>
+							</select>
+						</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">电压等级：</span></div>
+						<div class="mask-list-value">
+							<select name="" id="voltageDegree" class="required">
+								<option value="">电压等级</option>
+								<option value="10KV">10KV</option>
+								<option value="35KV">35KV</option>
+								<option value="380V">380V</option>
+								<option value="110KV">110KV</option>
+								<option value="66KV">66KV</option>
+								<option value="20KV">20KV</option>
+								<option value="6V">6V</option>
+								<option value="220KV">220KV</option>
+								<option value="220V">220V</option>
+								<option value="57.7V">57.7V</option>
+								<option value="100V">100V</option>
+							</select>
+						</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">安装位置：</span></div>
+						<div class="mask-list-value">
+							<input type="" name="" id="location" value="" class="required" />
+						</div>
+					</div>
+				</div>
+				<div class="mask-row-list" v-else-if="monitorType == '1'">
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="text">设施功率：</span></div>
+						<div class="mask-list-value">
+							<input type="" name="" id="monitorPower" value="" class="width-80 regular-num" />
+						</div>
+						<div class="mask-unit-box">KW</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">负荷阈值：</span></div>
+						<div class="mask-list-value">
+							<input type="" name="" id="thresholdValue" value="" class="required width-80 regular-num" />
+						</div>
+						<div class="mask-unit-box">KW</div>
+					</div>
+					<div class="mask-list">
+						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">持续时间：</span></div>
+						<div class="mask-list-value">
+							<input type="" name="" id="timeout" value="" class="required width-80 regular-num" />
+						</div>
+						<div class="mask-unit-box">分钟</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="save();">保存</div>
+					<div class="btn" onclick="closeMask();">返回</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.monitorType = "";
+		param.showSelectCompanyBtn = false;
+		param.showSelectGatewayBtn = false;
+		loadVue(".v-dom", param);
+
+		function selectMonitorType() {
+			setData.monitorType = $("#monitorType").val();
+		}
+
+		function selectCompany() {
+			parent.openMask("/part/selectCompany", "选择企业", ["800px", "420px"], function(layerDom, layerIframe) {
+				var dataInfo = {
+					id: $("#companyId").val(),
+					name: $("#companyName").val()
+				}
+				layerIframe.dataInfo = dataInfo;
+				layerIframe.loadData();
+			});
+		}
+
+		function selectFacility() {
+			var companyId = $("#companyId").val();
+			if(companyId == "") {
+				layer.msg("请选择企业");
+				return false;
+			}
+			parent.openMask("/part/selectFacility", "选择设施", ["800px", "420px"], function(layerDom, layerIframe) {
+				var dataInfo = {
+					id: $("#facilityId").val(),
+					name: $("#facilityName").val()
+				}
+				layerIframe.setData.companyId = companyId;
+				layerIframe.dataInfo = dataInfo;
+				layerIframe.loadData();
+			});
+		}
+
+		function selectGateway() {
+			var companyId = $("#companyId").val();
+			if(companyId == "") {
+				layer.msg("请选择企业");
+				return false;
+			}
+			parent.openMask("/part/selectGateway", "选择数采仪", ["800px", "420px"], function(layerDom, layerIframe) {
+				var dataInfo = {
+					id: $("#gatewayStationId").val(),
+					name: $("#gatewayStationName").val()
+				}
+				layerIframe.setData.companyId = companyId;
+				layerIframe.dataInfo = dataInfo;
+				layerIframe.loadData();
+			});
+		}
+
+		//编辑
+		function save() {
+			var checkI = checkInput();
+			if(checkI == true) {
+				var parentData = setData.parentData;
+				var param = {
+					name: $("#name").val(),
+					monitorType: $("#monitorType").val(),
+					facilityId: $("#facilityId").val(),
+					facilityName: $("#facilityName").val(),
+					companyId: $("#companyId").val(),
+					companyName: $("#companyName").val(),
+					gatewayStationId: $("#gatewayStationId").val(),
+					gatewayStationName: $("#gatewayStationName").val(),
+					monitorPower: $("#monitorPower").val(),
+					thresholdValue: $("#thresholdValue").val(),
+					timeout: $("#timeout").val(),
+					lineName: $("#lineName").val(),
+					measureStyle: $("#measureStyle").val(),
+					voltageDegree: $("#voltageDegree").val(),
+					location: $("#location").val()
+				};
+				if(parentData) {
+					param.id = parentData.id;
+				}
+				request('POST', '/company/monitor/saveOrUpdate.do', param, true, function(res) {
+						closeMask();
+						parent.layer.msg("操作成功");
+						parent.loadData();
+					},
+					function(res) {
+						layer.msg('操作失败，请检查网络或重试');
+					})
+			}
+		}
+	</script>
+
+</html>

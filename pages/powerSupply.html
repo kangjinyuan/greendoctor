@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon" />
+		<link rel="stylesheet" href="../css/reset.css" />
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362" />
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/jquery.qrcode.js"></script>
+		<script src="../js/utf.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="search-box">
+				<div class="search-row-box">
+					<div class="search-list">
+						<div class="search-name">线路名称：</div>
+						<div class="search-value">
+							<input type="text" name="" value="" id="lineName" placeholder="线路名称" />
+						</div>
+					</div>
+					<div class="search-btn-box">
+						<div class="btn" onclick="search();">查询</div>
+						<div class="btn" onclick="reloadPage();">重置</div>
+					</div>
+				</div>
+			</div>
+			<div class="btn-box">
+				<div class="btn-inner-box">
+					<div class="btn" onclick="powerSupply();">新建</div>
+					<div class="btn" onclick="del();">删除</div>
+				</div>
+			</div>
+			<div class="kjy-data-box">
+				<div class="no-data-box" v-if="dataList.length == 0">
+					<div class="no-data-inner-box">
+						<div class="icon icon-no-data"></div>
+						<div class="no-data-text">暂时没有线路记录哦</div>
+					</div>
+				</div>
+				<div class="kjy-data-inner-box" v-else>
+					<div class="kjy-table">
+						<table>
+							<thead>
+								<tr>
+									<th class="padding-left-52">
+										<div v-bind:class="['icon','icon-check-box',allIsActive?'icon-checked':'']" v-on:click="selectAllData()"></div>序号</th>
+									<th>线路名称</th>
+									<th>供电电压</th>
+									<th>受电容量</th>
+									<th>电源性质</th>
+									<th>备注</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+
+							<tbody id="tbody">
+								<tr v-for="(t,i) in dataList">
+									<td class="padding-left-52">
+										<div v-bind:class="['icon','icon-check-box',t.isActive?'icon-checked':'']" v-on:click="selectOneData(t)"></div>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+									<td v-bind:title="t.lineName">{{t.lineName}}</td>
+									<td>{{t.supplyVoltage}}</td>
+									<td>{{t.supplyCapacity}}</td>
+									<td>{{t.supplyPropertyText}}</td>
+									<td>{{t.comment?t.comment:'暂无备注'}}</td>
+									<td>
+										<ul class="opera-box">
+											<li v-on:click="powerSupply(t);">编辑</li>
+										</ul>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="page-box"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		loadVue(".v-dom", param);
+		//新建或编辑
+		function powerSupply(obj) {
+			var parentData = setData.parentData;
+			if(obj) {
+				var title = "编辑线路";
+			} else {
+				var title = "新建线路";
+			}
+			openMask("/part/powerSupply", title, ["440px", "358px"], function(layerDom, layerIframe) {
+				layerIframe.setData.companyInfo = parentData;
+				if(obj) {
+					layerIframe.setData.parentData = obj;
+					layerDom.find("#lineName").val(obj.lineName);
+					layerDom.find("#supplyVoltage").val(obj.supplyVoltage);
+					layerDom.find("#supplyCapacity").val(obj.supplyCapacity);
+					layerDom.find("#supplyProperty").val(obj.supplyProperty);
+					layerDom.find("#comment").val(obj.comment);
+				}
+			});
+		}
+
+		//删除数据
+		function del(obj) {
+			if(idList.length == "0") {
+				layer.msg("请选择线路");
+				return false;
+			}
+			openConfirm("确定删除所选线路吗？", function() {
+				var param = {
+					idList: idList
+				}
+				request('POST', '/company/powerSupply/deleteList.do', param, true, function(res) {
+					loadData();
+					layer.closeAll('dialog');
+				}, function(res) {
+					layer.msg("删除失败");
+				})
+			})
+		}
+
+		//		加载数据
+		function loadData() {
+			var parentData = setData.parentData;
+			var param = {
+				pageNo: pageNo,
+				companyName: parentData.name,
+				lineName: $("#lineName").val()
+			};
+			request('POST', '/company/powerSupply/queryList.do', param, true, function(res) {
+				var dataList = res.data.dataList;
+				for(var i = 0; i < dataList.length; i++) {
+					dataList[i].isActive = false;
+					if(dataList[i].supplyProperty == "0") {
+						dataList[i].supplyPropertyText = "备供";
+					} else if(dataList[i].supplyProperty == "1") {
+						dataList[i].supplyPropertyText = "主供";
+					}
+				}
+				setData.dataList = dataList;
+				setData.allIsActive = false;
+				loadPage();
+			}, function(res) {
+				layer.msg("线路记录加载失败");
+			})
+		}
+	</script>
+
+</html>

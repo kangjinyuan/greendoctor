@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>排污用电监测系统</title>
+		<meta name="keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		<meta http-equiv="Expires" content="0">
+		<link rel="shortcut icon" href="../img/common/logo.png" type="image/x-icon">
+		<link rel="stylesheet" href="../css/reset.css">
+		<link rel="stylesheet" href="../layui/css/layui.css">
+		<link rel="stylesheet" href="../css/common.css?v=04c77e4362">
+		<script src="../js/jquery-1.9.1.min.js"></script>
+		<script src="../layui/layui.all.js"></script>
+		<script src="../js/vue.min.js"></script>
+		<script src="../js/hls.min.js"></script>
+		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/common.js?v=64cf8bfbc7"></script>
+	</head>
+
+	<body>
+		<div class="kjy-box kjy-flex-box v-dom" v-cloak>
+			<div class="opera-list-box">
+				<div class="opera-list opera-left-box">
+					<div class="opera-list-inner-box">
+						<div class="fold-box">
+							<div class="fold-list-box" v-for="t in company">
+								<div class="fold-title-box" v-on:click="loadFacility(t);">
+									<div v-bind:class="['fold-title-text-box',t.isActive?'selected':'']" v-bind:title="t.name">{{t.name}}</div>
+									<div v-bind:class="['icon',t.isActive?'icon-fold-select-open':'icon-fold-no-open']"></div>
+								</div>
+								<div class="fold-content-box" v-if="t.isActive">
+									<div class="fold-content-inner-box">
+										<div class="fold-list-box" v-for="t in t.facility">
+											<div class="fold-title-box" v-on:click="loadMonitor(t);" v-if="t.monitor">
+												<div v-bind:class="['fold-title-text-box',t.isActive?'selected':'']">{{t.name}}</div>
+												<div v-bind:class="['icon',t.isActive?'icon-fold-select-open':'icon-fold-no-open']"></div>
+											</div>
+											<div class="fold-title-box" v-on:click="tabMonitor(t);" v-else>
+												<div v-bind:class="['fold-title-text-box',monitorInfo.id == t.id?'selected':'']">{{t.name}}</div>
+											</div>
+											<div class="fold-content-box" v-if="t.isActive && t.monitor.length > 0">
+												<div class="fold-content-inner-box">
+													<ul>
+														<li v-bind:class="monitorInfo.id == t.id?'selected':''" v-for="t in t.monitor" v-on:click="tabMonitor(t);">{{t.name}}</li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="opera-list opera-right-box">
+					<div class="opera-list-inner-box">
+						<div class="kjy-data-box full-height-box">
+							<div class="full-box" v-if="dataList.length == 0">
+								<div class="no-data-box">
+									<div class="no-data-inner-box">
+										<div class="icon icon-no-data"></div>
+										<div class="no-data-text">暂时没有数据哦</div>
+									</div>
+								</div>
+							</div>
+							<div class="kjy-data-inner-box" v-else>
+								<div class="kjy-table">
+									<table>
+										<thead>
+											<tr>
+												<th>序号</th>
+												<th>Ia</th>
+												<th>Ib</th>
+												<th>Ic</th>
+												<th>-Pt</th>
+												<th>Ept</th>
+												<th>Ua</th>
+												<th>Ub</th>
+												<th>Uc</th>
+												<th>更新时间</th>
+											</tr>
+										</thead>
+
+										<tbody id="tbody">
+											<tr v-for="(t,i) in dataList">
+												<td>{{((pageNo-1)*pageSize)+(i+1)}}</td>
+												<td>{{t.data.ia}}</td>
+												<td>{{t.data.ib}}</td>
+												<td>{{t.data.ic}}</td>
+												<td>{{t.data.pt}}</td>
+												<td>{{t.data.ept}}</td>
+												<td>{{t.data.ua}}</td>
+												<td>{{t.data.ub}}</td>
+												<td>{{t.data.uc}}</td>
+												<td>{{t.createTime}}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div class="page-box"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script>
+		param.monitorInfo = {};
+		param.company = [];
+		loadVue(".v-dom", param);
+
+		function loadCompany() {
+			var param = {
+				pageSize: "1000"
+			}
+			request("POST", "/company/company/queryList.do", param, true, function(res) {
+				var dataList = res.data.dataList;
+				for(var i = 0; i < dataList.length; i++) {
+					dataList[i].isActive = false;
+					dataList[i].facility = [];
+				}
+				setData.company = dataList;
+			}, function(res) {
+				layer.msg("企业记录加载失败");
+			})
+		}
+
+		function loadFacility(obj) {
+			var company = setData.company;
+			var companyId = obj.id;
+			for(var i = 0; i < company.length; i++) {
+				if(companyId == company[i].id) {
+					switchActive(obj);
+					var facility = company[i].facility;
+					if(facility.length == 0) {
+						var param = {
+							pageSize: "1000",
+							companyId: companyId
+						}
+						request("POST", "/company/facility/queryList.do", param, true, function(res) {
+							var dataList = res.data.dataList;
+							for(var j = 0; j < dataList.length; j++) {
+								dataList[j].isActive = false;
+								dataList[j].monitor = [];
+								facility.push(dataList[j]);
+							}
+							param.monitorType = "0";
+							request("POST", "/company/monitor/queryList.do", param, true, function(res) {
+								var dataList = res.data.dataList;
+								for(var j = 0; j < dataList.length; j++) {
+									facility.unshift(dataList[j]);
+								}
+							}, function(res) {
+								layer.msg("总表记录加载失败");
+							})
+						}, function(res) {
+							layer.msg("设施记录加载失败");
+						})
+					}
+				}
+			}
+		}
+
+		function loadMonitor(obj) {
+			var company = setData.company;
+			var companyId = obj.companyId;
+			var facilityId = obj.id;
+			for(var a = 0; a < company.length; a++) {
+				if(companyId == company[a].id) {
+					var facility = company[a].facility;
+					for(var b = 0; b < facility.length; b++) {
+						if(facilityId == facility[b].id) {
+							switchActive(obj);
+							var monitor = facility[b].monitor;
+							if(monitor && monitor.length == 0) {
+								var param = {
+									pageSize: "1000",
+									monitorType: "1",
+									facilityId: facilityId
+								}
+								request("POST", "/company/monitor/queryList.do", param, true, function(res) {
+									var dataList = res.data.dataList;
+									for(var c = 0; c < dataList.length; c++) {
+										monitor.push(dataList[c]);
+									}
+								}, function(res) {
+									layer.msg("监测点记录加载失败");
+								})
+							}
+						}
+					}
+				}
+			}
+		}
+
+		function tabMonitor(obj) {
+			setData.monitorInfo = obj;
+			loadData();
+		}
+
+		//加载电力数据	
+		function loadData() {
+			var monitorInfo = setData.monitorInfo;
+			var param = {
+				pageNo: pageNo,
+				id: monitorInfo.id
+			};
+			request('POST', '/company/monitor/data/queryList.do', param, true, function(res) {
+				setData.dataList = res.data.dataList;
+				loadPage();
+			}, function(res) {
+				layer.msg("用电详情加载失败");
+			})
+		}
+
+		loadCompany();
+	</script>
+
+</html>
