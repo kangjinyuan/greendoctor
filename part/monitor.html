@@ -17,7 +17,7 @@
 		<script src="../js/jquery-1.9.1.min.js"></script>
 		<script src="../layui/layui.all.js"></script>
 		<script src="../js/vue.min.js"></script>
-		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/postUrl.js?v=036ec59d5d"></script>
 		<script src="../js/common.js?v=64cf8bfbc7"></script>
 	</head>
 
@@ -28,6 +28,12 @@
 					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">监测点名称：</span></div>
 					<div class="mask-list-value">
 						<input type="text" name="" id="name" value="" class="required" />
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">监测点编码：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="serialNumber" value="" class="required" />
 					</div>
 				</div>
 				<div class="mask-list">
@@ -129,9 +135,9 @@
 						<div class="mask-unit-box">KW</div>
 					</div>
 					<div class="mask-list">
-						<div class="mask-list-name"><span class="required-flag">*</span><span class="text">负荷阈值：</span></div>
+						<div class="mask-list-name"><span class="text">负荷阈值：</span></div>
 						<div class="mask-list-value">
-							<input type="" name="" id="thresholdValue" value="" class="required width-80 regular-num" />
+							<input type="" name="" id="thresholdValue" value="" class="width-80 regular-num" />
 						</div>
 						<div class="mask-unit-box">KW</div>
 					</div>
@@ -214,6 +220,7 @@
 				var parentData = setData.parentData;
 				var param = {
 					name: $("#name").val(),
+					serialNumber: $("#serialNumber").val(),
 					monitorType: $("#monitorType").val(),
 					facilityId: $("#facilityId").val(),
 					facilityName: $("#facilityName").val(),

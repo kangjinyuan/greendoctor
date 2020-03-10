@@ -16,9 +16,7 @@
 		<script src="../js/jquery-1.9.1.min.js"></script>
 		<script src="../layui/layui.all.js"></script>
 		<script src="../js/vue.min.js"></script>
-		<script src="../js/jquery.qrcode.js"></script>
-		<script src="../js/utf.js"></script>
-		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/postUrl.js?v=036ec59d5d"></script>
 		<script src="../js/common.js?v=64cf8bfbc7"></script>
 	</head>
 
@@ -99,11 +97,11 @@
 		function monitorPoint(obj) {
 			var parentData = setData.parentData;
 			if(obj) {
-				var title = "编辑监控点";
+				var title = "编辑监测点";
 			} else {
-				var title = "新建监控点";
+				var title = "新建监测点";
 			}
-			openMask("/part/monitor", title, ["400px", "384px"], function(layerDom, layerIframe) {
+			openMask("/part/monitor", title, ["400px", "420px"], function(layerDom, layerIframe) {
 				layerDom.find("#companyId").val(parentData.companyId);
 				layerDom.find("#companyName").val(parentData.companyName);
 				layerDom.find("#gatewayStationName").val(parentData.name);
@@ -111,6 +109,7 @@
 				if(obj) {
 					layerIframe.setData.parentData = obj;
 					layerDom.find("#name").val(obj.name);
+					layerDom.find("#serialNumber").val(obj.serialNumber).attr("disabled","disabled");
 					var monitorType = obj.monitorType;
 					layerIframe.setData.monitorType = monitorType;
 					layerDom.find("#monitorType").val(monitorType).attr("disabled", "disabled");
@@ -128,6 +127,13 @@
 							layerDom.find("#timeout").val(obj.timeout);
 						}
 					})
+				}else{
+					var param = {};
+					request("POST", "/company/monitor/createSN.do", param, true, function(res) {
+						layerDom.find("#serialNumber").val(res.data);
+					}, function(res) {
+						layer.msg("获取SN码失败");
+					});
 				}
 			})
 		}

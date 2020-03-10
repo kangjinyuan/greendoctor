@@ -17,7 +17,7 @@
 		<script src="../js/jquery-1.9.1.min.js"></script>
 		<script src="../layui/layui.all.js"></script>
 		<script src="../js/vue.min.js"></script>
-		<script src="../js/postUrl.js?v=027eb6ccff"></script>
+		<script src="../js/postUrl.js?v=036ec59d5d"></script>
 		<script src="../js/common.js?v=64cf8bfbc7"></script>
 	</head>
 
@@ -40,6 +40,12 @@
 						<div class="btn-inner-box">
 							<div class="btn" onclick="selectCompany();">选择</div>
 						</div>
+					</div>
+				</div>
+				<div class="mask-list">
+					<div class="mask-list-name"><span class="required-flag">*</span><span class="text">MN码：</span></div>
+					<div class="mask-list-value">
+						<input type="text" name="" id="mn" value="" class="required" />
 					</div>
 				</div>
 			</div>
@@ -66,6 +72,17 @@
 			});
 		}
 
+		function createMn() {
+			var param = {
+				companyId: $("#companyId").val()
+			};
+			request("POST", "/company/gateway/createMn.do", param, true, function(res) {
+				$("#mn").val(res.data);
+			}, function(res) {
+				layer.msg("获取MN码失败");
+			});
+		}
+
 		//编辑
 		function save() {
 			var checkI = checkInput();
@@ -73,6 +90,7 @@
 				var parentData = setData.parentData;
 				var param = {
 					name: $("#name").val(),
+					mn: $("#mn").val(),
 					companyId: $("#companyId").val(),
 					companyName: $("#companyName").val()
 				};

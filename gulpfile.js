@@ -33,10 +33,10 @@ function resetHtml(taskName, savePath) {
 }
 
 resetFile("resetCss", cssList, "css");
-resetFile("resetJS", jsList, "js");
+resetFile("resetJs", jsList, "js");
 resetHtml("resetMainHtml", ".");
 resetHtml("resetPagesHtml", "pages");
 resetHtml("resetPartHtml", "part");
 resetHtml("resetMobileHtml", "mobile");
 
-gulp.task('default', gulp.series("resetCss", "resetJS", gulp.parallel("resetMainHtml", "resetPagesHtml", "resetPartHtml")));
+gulp.task('default', gulp.series("resetCss", "resetJs", gulp.parallel("resetMainHtml", "resetPagesHtml", "resetPartHtml")));
